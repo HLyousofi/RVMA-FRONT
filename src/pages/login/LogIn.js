@@ -1,3 +1,4 @@
+// Importing necessary modules and resources
 import accueilImage from '../../assets/images/accueil-photo.png';
 import { useRef, useState } from 'react';
 import api  from '../../services/axios-service';
@@ -13,24 +14,38 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useAlert from '../../hooks/useAlert';
 import { Button } from '@mui/material';
+import RelativeAlertComponent from '../../components/ui/RelativeAlertComponent';
 
-
-
+// Functional component definition for the login page
 function Login() {
+    // State and ref initialization
     const refLogin = useRef('');
     const refPwd = useRef('');
     const refSubmit = useRef('');
+
+    // Custom hook for displaying alerts
     const {setAlert} = useAlert();
+
+    // React router navigation hook
     const navigate = useNavigate();
+
+    // State for handling errors
     const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState();
+
+    // State for password visibility
     const [showPassword, setShowPassword] = useState();
+
+    // Custom hook for authentication
     const { setUser, setApiToken, user} = useAuth();
 
 
+    // Function to toggle password visibility
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
     }
 
+    // Function to handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
         if(refLogin.current.value.length > 0 && refPwd.current.value.length > 0 ){
@@ -43,16 +58,19 @@ function Login() {
                         setAlert({active : true, type : "success", message : 'Connexion réussie !'});
                 }else {
                     setError(true);
+                    setErrorMessage("Login ou mot de passe incorrect.");
                     setApiToken();
                 }
             }catch(error) {
+                setError(true);
+                setErrorMessage("Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !");
                 console.log(error)
             }
         }
         
     }
 
-   
+    // JSX structure for rendering the component
     return (
                 <div className="bg-white flex justify-center items-center h-screen">
                         {/* <!-- Left: Image --> */}
@@ -60,6 +78,10 @@ function Login() {
                         <img src={accueilImage} alt="Placeholder Image" className="object-cover  h-full" />
                     </div>
                     <div className="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
+                        { error && <RelativeAlertComponent 
+                            props={{severity:"error",msg : errorMessage}}
+                        />
+                        }
                         <form onSubmit={handleSubmit}>
                             {/* <!-- Username Input --> */}
                             <div className="mb-4">
@@ -98,5 +120,5 @@ function Login() {
                 </div>
     );
 }
-
+// Exporting the Login component as the default export
 export default Login;
