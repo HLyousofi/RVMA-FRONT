@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 
 const CustomerForm = () => {
@@ -21,29 +21,27 @@ const CustomerForm = () => {
     const [buttonAction, setButtonAction] = useState('Ajouter');
     const [nameError, setNameError] = useState(false);
     const [phoneNumberError, setPhoneNumberError] = useState(false);
-    // const [submit, setSubmit] = useState(true);
     const [emailError, setEmailError] = useState();
     const navigate = useNavigate();
     const {setAlert} = useAlert();
-    let {item} = useParams();
+    const location = useLocation();
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 
     useEffect(() => {
         // Populate form fields if editing an existing customer
-        if(item != "new"){
+        if(location.state){
             setButtonAction('Modifier');
-            let customerData = JSON.parse(item);
-            setId(customerData.id)
-            setFormTitle('Id Client :'+ customerData.id);
-            nameRef.current.value = customerData.name;
-            adressRef.current.value = customerData.adress;
-            emailRef.current.value = customerData.email;
-            phoneNumberRef.current.value = customerData.phoneNumber;
-            typeRef.current.checked = customerData.type == "B" ? true : false ;
+            setId(location.state?.id);
+            setFormTitle('Id Client :'+ location.state?.id);
+            nameRef.current.value = location.state?.name;
+            adressRef.current.value = location.state?.adress;
+            emailRef.current.value = location.state?.email;
+            phoneNumberRef.current.value = location.state?.phoneNumber;
+            typeRef.current.checked = location.state?.type == "B" ? true : false ;
 
             if(typeRef.current.checked){
-                iceRef.current.value = customerData.ice;
+                iceRef.current.value = location.state?.ice;
             }
             else {
                 setHiddenIce(false);
@@ -88,7 +86,7 @@ const CustomerForm = () => {
 
             try {
                 // Make API request based on whether it's a new customer or an update
-                if(item != "new"){
+                if(location.state){
                      response = await api.patch(`/customers/${id}`, customer);
                 }else {
                      response = await api.post('/customers', customer);

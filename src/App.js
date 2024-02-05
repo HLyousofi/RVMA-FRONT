@@ -23,9 +23,9 @@ function App() {
             <Route element={<ResquireAuth />}>
                 <Route element={<Layout />} >
                     <Route path="/customers" element={<Customers />}></Route>
-                    <Route path="/customers/customerform/:item" element={<CustomerForm />}></Route>
+                    <Route path="/customers/customerform" element={<CustomerForm />}></Route>
                     <Route path="/vehicles" element={<Vehicles />}></Route>
-                    <Route path="/vehicles/vehicleform/:item" element={<VehicleForm />}></Route>
+                    <Route path="/vehicles/vehicleform" element={<VehicleForm />}></Route>
                     <Route path="/orders" element={<Orders />}></Route>
                     <Route path="/invoices" element={<Invoices />}></Route>
                     <Route path="/logout" element={<LogOut />}></Route>

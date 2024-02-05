@@ -1,27 +1,37 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import useAlert from "../../hooks/useAlert";
 import { Chip } from "@mui/material";
 import formatPrice from "../../utils/utility";
-import useAlert from "../../hooks/useAlert";
+import { useQuery, useMutation, useQueryClient } from "react-query";
+import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
+import SearchBar from "../../components/SearchBar";
+
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { useNavigate, Link } from "react-router-dom";
 import {
-    GridRowModes,
     DataGrid,
-    GridToolbarContainer,
     GridActionsCellItem,
-    GridRowEditStopReasons,
+    useGridApiRef
   } from '@mui/x-data-grid';
 
 
 
-
-
+// Define the functional component Orders
 function Orders() {
-    const [orders, setOrders] = useState({});
-    const [loading, setLoading] = useState('');
+    // Initialize state and variables
+    const [orders, setOrders] = useState();
+    const [vehicleId, setVehicleId] = useState();
+    const [enable, setEnable] = useState(false);
     const {setAlert} = useAlert();
     const endPoint = 'orders';
+    const endPointEdit ='orderform';
+    const queryClient = useQueryClient();
+    const apiRef = useGridApiRef();
+    const [page, setPage] = useState({page : 1, pageSize : 15});
+
     const ordersColumns = [
         { field: 'id',
           headerName: 'ID', 
@@ -77,7 +87,7 @@ function Orders() {
             width: 100,
             getActions: ({id}) => [
               <GridActionsCellItem icon={<EditIcon />} label="Edit"  />,
-              <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
+              ///*<GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
             ],
           },
       ];
@@ -109,70 +119,60 @@ function Orders() {
     
     }  
 
-    const fetchData = async () =>{
-        try {
-            const response = await api.get('/orders');
-            if(response.data){
-                setOrders(response.data.data);
-                setLoading(false);
-               
-            }else {
-                
-            }
-        }catch(error) {
-            console.log(error)
-        }
+    const fetchOrders  =  (page) => api.get(`/${endPoint}?page=all&vehicleId[eq]=${vehicleId}`).then((res) =>{ return res});
+
+    const result = useQuery({
+        queryKey: ['orders', vehicleId],
+        queryFn: () => fetchOrders(page),
+        keepPreviousData : true,
+        //enabled: enable,
+    });
+    const { data, isLoading, isError } = result;
+
+    const handelFetchData = (vehicleId) => {
+       // setEnable(true);
+       
+        setVehicleId(vehicleId, () => setEnable(false))
+
     }
     
-    useEffect(() => {
-        setLoading(true);
-        fetchData();
 
-    }, []);
-
+    
+    
     const handlEditClick = (id) => {
         //  navigate('/vehicles');
-      }
+    }
   
-      const handlDeleteClick = async ({id}) =>{
-  
-          try{
-          const response = await api.delete(`/${endPoint}/${id}`);
-          setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
-          fetchData();
-  
-           
-          }
-          catch(error){
-              setAlert({active : true, type : "error" ,message : error.message});
-          }
-      }
-      
-    return (
+   
+   return (
             <section >
-                <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6 shadow-lg rounded ">
-                    <div className="rounded-t mb-0 px-4 py-3 border-0">
-                        <div className="flex flex-wrap items-center">
-                            <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                                <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Orders</h3>
+                <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6 shadow-lg  ">
+                    <SearchBar handelFetchData={handelFetchData} />
+                    {vehicleId && 
+                        <div className="block w-full overflow-x-auto">
+                                <DataGrid 
+                                    columnVisibilityModel={{
+                                        customerId: false,
+                                    }}
+                                    paginationMode="server"
+                                    columns={ordersColumns}
+                                    rows={data?.data?.data}
+                                    initialState={{
+                                        pagination: {
+                                        paginationModel: {
+                                            pageSize: 15,
+                                        },
+                                        },
+                                    }}
+                                    rowCount={data?.data?.meta?.total}
+                                    pageSizeOptions={[15, 25, 50, 100]}  
+                                    apiRef={apiRef}
+                                    onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
+                                    //onRowClick={(params) => {handlRowClick(params)}}
+                                />
                             </div>
-                        </div>
-                    </div>
-                    <div className="block w-full overflow-x-auto">
-                        <DataGrid 
-                            columns={ordersColumns}
-                            rows={orders}
-                            loading={loading}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: {
-                                    pageSize: 7,
-                                    },
-                                },
-                                }}
-                                pageSizeOptions={[7, 10, 25]}
-                            />
-                    </div>
+                        }
+
                 </div>
             </section>
                 

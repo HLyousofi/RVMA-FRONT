@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,7 +18,6 @@ import {
 // Define the functional component Vehicles
 function Vehicles() {
     // Initialize state and variables
-    const [vehicles, setVehicles] = useState({});
     const navigate = useNavigate();
     const {setAlert} = useAlert();
     const endPoint = 'vehicles';
@@ -84,7 +83,7 @@ function Vehicles() {
 
     const fetchVehicles  =  (page) => api.get(`/${endPoint}?page=${page.page}&pageSize=${page.pageSize}`).then((res) =>{ return res});
 
-     // Use React Query to fetch customer data and manage the state
+     // Use React Query to fetch vehicles data and manage the state
     const result = useQuery({
         queryKey: ['vehicles', page],
         queryFn: () => fetchVehicles(page),
@@ -97,9 +96,8 @@ function Vehicles() {
 
     // Handle the click event for editing a customer
     const handlEditClick = (vehicle) => {
-        let item = encodeURIComponent(JSON.stringify(vehicle))
-    
-        navigate(`/${endPoint}/${endPointEdit}/${item}`);
+       
+        navigate(`/${endPoint}/${endPointEdit}`, {state : vehicle});
     }
 
     const mutation = useMutation((id) => {
@@ -124,7 +122,7 @@ function Vehicles() {
       };  
 
      // Display a loading spinner while data is being fetched
-     if(isLoading){
+    if(isLoading){
         return <CircularIndeterminate />
     }
     else if(isError)  {
@@ -143,7 +141,7 @@ function Vehicles() {
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Vehicules</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <Link to={`/${endPoint}/${endPointEdit}/new`} ><AddCircleOutlineIcon color="success" /></Link>
+                                    <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
                                 </div>
                             </div>
                         </div>

@@ -3,8 +3,10 @@ import { Button } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
+import { useQuery  } from "react-query";
+
 
 
 const VehicleForm = () => {
@@ -15,51 +17,59 @@ const VehicleForm = () => {
     const modelRef = useRef(null); 
     const plateNumberRef = useRef(null); 
     const fuelTypeRef = useRef(null); 
-    const [id, setId] = useState(null);
-    const [customerId, setCustomerId] = useState(null);
+    
     // State variables
     const [formTitle, setFormTitle] = useState('Nouveau Vehicule')
     const [buttonAction, setButtonAction] = useState('Ajouter');
     const [nameError, setNameError] = useState(false);
-    const [phoneNumberError, setPhoneNumberError] = useState(false);
-    const [customersName, setCustomersName] = useState();
-    // const [submit, setSubmit] = useState(true);
-    const [emailError, setEmailError] = useState();
+    const [modelError, setModelError] = useState();
+    const [brandError, setBrandError] = useState();
+    const [plateNumberError, setPlateNumberError] = useState();
+    const [fuelTypeError, setFuelTypeError] = useState();
+    const [customerId, setCustomerId] = useState(null);
+    const [id, setId] = useState(null);
+
+
+
     const navigate = useNavigate();
+    const location = useLocation();
     const {setAlert} = useAlert();
     const endPoint = 'vehicles';
     const endPointCustomer = 'customers';
-    let {item} = useParams();
+    const fuelTypes = ['Essance', 'Gazoil', 'Hybrid'];
+    
+
+
+    const fetchCustomersName  =  async () =>  await api.get(`/${endPointCustomer}?pageSize=all`);
+
+     // Use React Query to fetch customer  and manage the state
+    const result = useQuery({
+        queryKey: ['customersName'],
+        queryFn: () => fetchCustomersName(),
+        keepPreviousData : true
+    });
+    const { data, isLoading, isError } = result;
+   
+    
+
+
     
 
 
     useEffect(() => {
+        
         // Populate form fields if editing an existing customer
-
-        const fetchDataForm = async () => { 
-            if(item != "new"){
-                setButtonAction('Modifier');
-                let vehicleData = JSON.parse(item);
-                console.log(vehicleData);
-                setId(vehicleData.id);
-                setCustomerId(vehicleData.customerId);
-                setFormTitle('Id Vehicule :'+ vehicleData.id);
-                customerNameRef.current.value = vehicleData.customerName;
-                brandRef.current.value = vehicleData.brand;
-                modelRef.current.value = vehicleData.model;
-                plateNumberRef.current.value = vehicleData.plateNumber;
-                fuelTypeRef.current.value = vehicleData.fuelType;
-            }else {
-                try {
-                 const response   = await api.get(`/${endPointCustomer}?pageSize=all`);
-                 if(response.status == 200){
-                    setCustomersName(response.data);
-                 }
-
-                }catch(error){
-                    console.log(error);
-
-                }
+        const fetchDataForm =  () => { 
+            if(location.state){
+                setButtonAction('Modifier');;
+                setId(location.state?.id);
+                setCustomerId(location.state?.customerId);
+                setFormTitle('Id Vehicule :'+ location.state?.id);
+                customerIdRef.current.value = location.state?.customerName;
+                brandRef.current.value = location.state?.brand;
+                modelRef.current.value = location.state?.model;
+                plateNumberRef.current.value = location.state?.plateNumber;
+                fuelTypeRef.current.value = location.state?.fuelType;
             }
         }
 
@@ -71,65 +81,72 @@ const VehicleForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         // Validation checks before submitting the form
-        // if(nameRef?.current?.value?.length < 3 ){
-        //     setNameError(true);
-        //     return;
-        // }
-        // if(phoneNumberRef?.current?.value?.length < 10){
-        //     setPhoneNumberError(true);
-        //     return;
-        // }
+
         
+         if(customerId == null ){
+            setNameError(true);
+            return;
+        }
+        if(brandRef?.current?.value?.length < 3){
+            setBrandError(true);
+            return;
+        }
+        if(modelRef?.current?.value?.length < 2){
+            setModelError(true);
+            return;
+        } 
+        if(fuelTypeRef?.current?.value?.length < 3){
+            setFuelTypeError(true);
+            return;
+        }
+        if(plateNumberRef?.current?.value?.length < 3){
+            setPlateNumberError(true);
+            return;
+        }
+       
+        let response;
+           
 
-            //const type = typeRef?.current?.checked  ? 'B' : 'I';
-            let response;
-            // Construct vehicle object
+        const vehicle = {
+            customerId : customerId,
+            customerName : customerNameRef?.current?.value,
+            brand : brandRef?.current?.value,
+            model : modelRef?.current?.value, 
+            plateNumber : plateNumberRef?.current?.value, 
+            fuelType : fuelTypeRef?.current?.value 
+        };
 
-            const vehicle = {
-                customerId : customerIdRef?.current?.value,
-                customerName : customerNameRef?.current?.value,
-                brand : brandRef?.current?.value,
-                model : modelRef?.current?.value, 
-                plateNumber : plateNumberRef?.current?.value, 
-                fuelType : fuelTypeRef?.current?.value 
-            };
-
-            try {
-                // Make API request based on whether it's a new vehicle or an update
-                if(item != "new"){
-                     response = await api.patch(`/${endPoint}/${id}`, vehicle);
-                }else {
-                     response = await api.post(`/${endPoint}`, vehicle);
-                }  
-                // Check response status and navigate accordingly
-                if(response.status === 201){ 
-                    navigate(`/${endPoint}`);
-                    setAlert({
-                        active : true, 
-                        type : "success", 
-                        message : 'Client Ajouté avec Succes !'});
-                }if(response.status === 200){ 
-                    navigate(`/${endPoint}`);
-                    setAlert({
-                        active : true, 
-                        type : "success", 
-                        message : 'Client Modifier avec Succes !'
-                    });
-                }
-            }catch(error){
+        try {
+            // Make API request based on whether it's a new vehicle or an update
+            if(id != null){
+                    response = await api.patch(`/${endPoint}/${id}`, vehicle);
+            }else {
+                    response = await api.post(`/${endPoint}`, vehicle);
+            }  
+            // Check response status and navigate accordingly
+            if(response.status === 201){ 
+                navigate(`/${endPoint}`);
                 setAlert({
                     active : true, 
-                    type : "error", 
-                    message : error.message
+                    type : "success", 
+                    message : 'Client Ajouté avec Succes !'});
+            }if(response.status === 200){ 
+                navigate(`/${endPoint}`);
+                setAlert({
+                    active : true, 
+                    type : "success", 
+                    message : 'Client Modifier avec Succes !'
                 });
-                    
             }
-    }
-
-  
-    
-
-    
+        }catch(error){
+            setAlert({
+                active : true, 
+                type : "error", 
+                message : error.message
+            });
+                
+        }
+}
 
 
     return (
@@ -141,13 +158,19 @@ const VehicleForm = () => {
                                     <div className="flex-initial w-[45%]">
                                         <Autocomplete
                                             fullWidth
-                                            freeSolo
+                                            autoHighlight
+                                            disabled={isLoading}
                                             disableClearable
                                             id="customer-name"
-                                            options={customersName}
-                                            renderInput={(params) => <TextField 
+                                            options={data?.data}
+                                            getOptionKey={(option) => setCustomerId(option.id)}
+                                            inputValue={location?.state?.customerName}
+                                            renderInput={(params) => <TextField
+                                                                        inputRef={customerIdRef} 
                                                                         {...params} 
                                                                         label="Client"
+                                                                        required
+                                                                        error={nameError}
                                                                         InputProps={{
                                                                             ...params.InputProps,
                                                                             type: 'search',
@@ -155,21 +178,14 @@ const VehicleForm = () => {
                                             
                                             />}
                                         />
-                                        {/* <TextField 
-                                            type="text" 
-                                            required 
-                                            error={nameError} 
-                                            fullWidth 
-                                            label="Client" 
-                                            inputRef={customerNameRef} 
-                                            variant="outlined" 
-                                        /> */}
                                     </div>
                                     <div className=" flex-initial w-[45%] ml-[10%]">
                                         <TextField  
                                             type="text"  
                                             fullWidth 
+                                            required
                                             label="Marque" 
+                                            error={brandError}
                                             inputRef={brandRef} 
                                             variant="outlined" />
                                     </div>
@@ -177,8 +193,9 @@ const VehicleForm = () => {
                                 <div className="flex ">
                                     <div className="flex-initial w-[45%]">
                                         <TextField 
-                                            type="email" 
-                                            error={emailError}  
+                                            type="text" 
+                                            error={modelError} 
+                                            required 
                                             fullWidth 
                                             label="Model" 
                                             inputRef={modelRef} 
@@ -190,7 +207,7 @@ const VehicleForm = () => {
                                             required 
                                             fullWidth 
                                             label="Matricule" 
-                                            error={phoneNumberError} 
+                                            error={plateNumberError} 
                                             inputRef={plateNumberRef} 
                                             variant="outlined" 
                                         />
@@ -198,24 +215,29 @@ const VehicleForm = () => {
                                 </div>
                                 <div className="flex ">
                                         <div className=" flex-initial w-[45%] ">
-                                            <TextField 
-                                                type="text" 
-                                                inputRef={fuelTypeRef}  
-                                                required 
-                                                fullWidth 
-                                                label="Carburant" 
-                                                variant="outlined" 
+                                            <Autocomplete
+                                                fullWidth
+                                                autoHighlight
+                                                disableClearable
+                                                defaultValue={location.state?.fuelType }
+                                                id="fuel-type"
+                                                options={fuelTypes}
+                                                renderInput={(params) => <TextField 
+                                                                            {...params} 
+                                                                            label="Carburant"
+                                                                            required
+                                                                            inputRef={fuelTypeRef}
+                                                                            error={fuelTypeError}
+                                                                            InputProps={{
+                                                                                ...params.InputProps,
+                                                                                type: 'search',
+                                                                            }} 
+                                                
+                                                />}
                                             />
                                         </div>
                                     <div className=" flex-initial w-[45%] ml-[10%] " >
-                                       {/* <TextField 
-                                            type="number" 
-                                            inputRef={fuelTypeRef}  
-                                            required 
-                                            fullWidth 
-                                            label="Carburant" 
-                                            variant="outlined" 
-                                       /> */}
+                                     
                                     </div>
                                 </div>
                                 <div className=" flex justify-end mt-4 ">

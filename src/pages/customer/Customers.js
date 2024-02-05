@@ -88,9 +88,8 @@ function Customers() {
     
     // Handle the click event for editing a customer
     const handlEditClick = (customer) => {
-        let item = encodeURIComponent(JSON.stringify(customer))
     
-        navigate(`/${endPoint}/${endPointEdit}/${item}`);
+        navigate(`/${endPoint}/${endPointEdit}`, {state : customer});
     }
 
      // Handle the click event for deleting a customer
@@ -141,7 +140,7 @@ function Customers() {
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Clients</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <Link to={`/${endPoint}/${endPointEdit}/new`} ><AddCircleOutlineIcon color="success" /></Link>
+                                    <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
                                 </div>
                             </div>
                         </div>
