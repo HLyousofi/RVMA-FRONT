@@ -1,14 +1,13 @@
 // Import necessary React and external dependencies
 import {  useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api  from '../../services/axios-service';
+import { useNavigate, Link } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
-import { Link } from "react-router-dom";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import useGetCustomers, { useDeleteCustomer } from "../../services/CustomerService";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
+import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -23,11 +22,14 @@ function Customers() {
     // Initialize state and variables
     const navigate = useNavigate();
     const {setAlert} = useAlert();
+    const {openPopup, setYesAction, setNoAction, setMessage} = usePopup();
     const endPoint = 'customers';
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='customerform';
-    const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
+    const { data, isLoading, isError } = useGetCustomers(page);
+    const {mutateAsync : deleteCustomer} = useDeleteCustomer();
+
     // Define columns for the DataGrid
     const customerColumns = [
         { field: 'id',
@@ -73,30 +75,12 @@ function Customers() {
           },
       ];
   
-     // Define a function to fetch customer data
-    const fetchCustomers  =  (page) => api.get(`/${endPoint}?page=${page.page}&pageSize=${page.pageSize}`).then((res) =>{ return res});
-    
-   
-
-    // Use React Query to fetch customer data and manage the state
-    const result = useQuery({
-        queryKey: ['customers', page],
-        queryFn: () => fetchCustomers(page),
-        keepPreviousData : true
-    });
-    const { data, isLoading, isError } = result;
-    
-    // Handle the click event for editing a customer
+     
     const handlEditClick = (customer) => {
     
         navigate(`/${endPoint}/${endPointEdit}`, {state : customer});
     }
 
-     // Handle the click event for deleting a customer
-
-    const mutation = useMutation((id) => {
-        return api.delete(`/${endPoint}/${id}`);
-    });
 
     const handlRowClick = (params) => {
         console.log(params.row.id);
@@ -106,20 +90,28 @@ function Customers() {
 
 
     const handleDeleteClick =  ({id}) => {
-        mutation.mutate(id, {
-            onSuccess:  () => {
-                setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
-                apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
-            },
-            onError: (error) => {
-                // Handle error, like showing an error message
-                setAlert({active : true, type : "error" ,message : error.message});
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('customers')
-              },
-        });
-      };
+      
+        
+        openPopup();
+        setNoAction(() => () => {});
+        setMessage('Êtes-vous sûr de bien vouloir supprimer ce Client?')
+        setYesAction(() =>  () => {
+                                try {
+                                     deleteCustomer(id,{
+                                        onSuccess : () => {
+                                            apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                            setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
+                                        }
+                                    })
+
+                                } catch(error){
+                                    console.log(error);
+
+                                }
+      })
+
+    
+    };
     
 
     // Display a loading spinner while data is being fetched

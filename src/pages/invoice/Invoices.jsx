@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import formatPrice from "../../utils/utility";
+import CircularIndeterminate from "../../components/ui/CircularIndeterminate";
+import useGetInvoices, { useDeleteInvoice } from "../../services/InvoiceService";
+import usePopup from "../../hooks/usePopup";
+
 import {
-    GridRowModes,
     DataGrid,
-    GridToolbarContainer,
     GridActionsCellItem,
-    GridRowEditStopReasons,
+    useGridApiRef
   } from '@mui/x-data-grid';
 
 
@@ -19,8 +20,12 @@ import {
 
 function Invoices() {
     const navigate = useNavigate();
+    const apiRef = useGridApiRef();
+    const [page, setPage] = useState({page : 1, pageSize : 15});
     const {setAlert} = useAlert();
-    const endPoint = 'invoices';
+    const { data , isLoading, isError } = useGetInvoices(page);
+    const {mutateAsync : deleteInvoice} = useDeleteInvoice();
+    const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     const invoiceColumns = [
         { field: 'id',
           headerName: 'ID', 
@@ -76,77 +81,72 @@ function Invoices() {
             ],
           },
       ];
-    const [invoices, setInvoices] = useState({});
 
 
-    const fetchData = async () =>{
-        try {
-            const response = await api.get(`/${endPoint}`);
-            if(response.data){
-                setInvoices(response.data.data);
-               
-            }else {
-                
-            }
-        }catch(error) {
-            console.log(error)
-        }
-    }
-    
-    useEffect(() => {
-        fetchData();
-    }, [])
 
 
     const handlEditClick = (id) => {
       //  navigate('/vehicles');
     }
 
-    const handlDeleteClick = async ({id}) =>{
-
-        try{
-        const response = await api.delete(`/${endPoint}/${id}`);
-        setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
-        fetchData();
-
-         
-        }
-        catch(error){
-            setAlert({active : true, type : "error" ,message : error.message});
-        }
+    const handlDeleteClick =  ({id}) =>{
+        openPopup();
+        setMessage('Êtes-vous sûr de bien vouloir supprimer cette Facture');
+        setNoAction(() => () => {});
+        setYesAction(() => () => {
+                                try{
+                                     deleteInvoice(id, { onSuccess : 
+                                                                        () =>  { 
+                                                                            apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                                                            setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
+                                
+                                                                                }
+                                                            })
+                                }
+                                catch(error){
+                                    setAlert({active : true, type : "error" ,message : error.message});
+                                }
+                            })
     }
 
-   
-
-    return (
-        
-      
-
+     // Display a loading spinner while data is being fetched
+     if(isLoading){
+        return <CircularIndeterminate />
+    }
+    else if(isError)  {
+        return <p>Error fetching data</p>;
+    }
+     // Render the main content with the DataGrid
+    else return (
             <section >
                     <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6 shadow-lg rounded ">
                         <div className="rounded-t mb-0 px-4 py-3 border-0">
                             <div className="flex flex-wrap items-center">
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                                <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Clients</h3>
+                                <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Factures</h3>
                                 </div>
-                                <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
+                                {/* <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
                                 <button className="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">See all</button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                         <div className="block w-full overflow-x-auto">
                             <DataGrid 
+                                paginationMode="server"
                                 columns={invoiceColumns}
-                                rows={invoices}
+                                rows={data?.data?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
-                                        pageSize: 7,
+                                        pageSize: 15, page : 0
                                       },
                                     },
                                   }}
-                                  pageSizeOptions={[7, 10, 25]}
-
+                                  apiRef={apiRef}
+                                  onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
+                                  rowCount={data?.data?.meta?.total}
+                                  pageSizeOptions={[15, 25, 50, 100]}  
+                                  
                                />
                         </div>
                     </div>

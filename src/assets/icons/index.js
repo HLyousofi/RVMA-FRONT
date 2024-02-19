@@ -35,6 +35,10 @@ import { ReactComponent as DashboardIcon } from './dashboard.svg'
 import { ReactComponent as VehiculeIcon } from './vehicle.svg'
 import { ReactComponent as LightThemeIcon } from './lightTheme.svg'
 import { ReactComponent as DarkThemeIcon } from './darkTheme.svg'
+import { ReactComponent as XmodelIcon } from './x-model.svg'
+import { ReactComponent as ExclamationIcon } from './exclamation.svg'
+
+
 
 
 
@@ -80,7 +84,9 @@ export {
   DashboardIcon,
   VehiculeIcon,
   LightThemeIcon,
-  DarkThemeIcon
+  DarkThemeIcon,
+  XmodelIcon,
+  ExclamationIcon
  
 }
 

@@ -62,9 +62,10 @@ function Login() {
                     setApiToken();
                 }
             }catch(error) {
-                setError(true);
-                setErrorMessage("Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !");
-                console.log(error)
+                if(error?.response?.status < 500){
+                    setError(true);
+                    setErrorMessage("Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !");
+                }
             }
         }
         

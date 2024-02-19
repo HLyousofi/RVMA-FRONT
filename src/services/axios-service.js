@@ -1,4 +1,6 @@
 import axios from "axios";
+import { Navigate } from "react-router-dom";
+
 
 
 const axiosClient = axios.create({
@@ -16,9 +18,15 @@ axiosClient.interceptors.response.use((response) => {
     return response;
 }, (error) => {
     const {response} = error;
-    if(response && response.status === 401){
+    if(response && response.status >= 500){
         localStorage.clear();
-    }else {
+        const  params = {errorCode : response.status, errorMessage : response.statusText};
+        const queryString = new URLSearchParams(params).toString();
+        window.location.replace(`/errorPage?${queryString}`);
+    }else if(response.status == 401){
+        window.location.replace("/");
+        
+    }else{
         throw error;
     }
 })

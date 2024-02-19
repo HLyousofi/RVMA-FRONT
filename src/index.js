@@ -11,6 +11,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { ThemeProvider } from './contexts/ThemeProvider';
 import { AlertProvider } from './contexts/AlertProvider';
+import { PopupProvider } from './contexts/PopupProvider';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -20,7 +21,9 @@ root.render(
         <AuthProvider>
                 <ThemeProvider>
                     <AlertProvider>
-                        <App /> 
+                        <PopupProvider>
+                            <App /> 
+                        </PopupProvider>
                     </AlertProvider>
                 </ThemeProvider>
         </AuthProvider>

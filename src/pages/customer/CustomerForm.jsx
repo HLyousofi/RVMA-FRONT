@@ -1,9 +1,9 @@
 import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { usePostCustomer, useUpdateCustomer} from '../../services/CustomerService';
 
 
 const CustomerForm = () => {
@@ -25,6 +25,10 @@ const CustomerForm = () => {
     const navigate = useNavigate();
     const {setAlert} = useAlert();
     const location = useLocation();
+    const {mutateAsync : addCustomer} = usePostCustomer();
+    const {mutateAsync : updateCustomer} = useUpdateCustomer();
+
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 
@@ -74,46 +78,62 @@ const CustomerForm = () => {
         }
 
             const type = typeRef?.current?.checked  ? 'B' : 'I';
-            let response;
             // Construct customer object
             const customer = {
                 name : nameRef?.current?.value,
                 adress : adressRef?.current?.value,
                 email : emailRef?.current?.value, 
                 phoneNumber : phoneNumberRef?.current?.value, 
-                type : type, ice : iceRef?.current?.value 
+                type : type, 
+                ice : iceRef?.current?.value 
             };
 
-            try {
-                // Make API request based on whether it's a new customer or an update
                 if(location.state){
-                     response = await api.patch(`/customers/${id}`, customer);
+                     try{
+                       
+                        await updateCustomer({id, customer},{
+                                                            onSuccess : async () => {
+                                                                navigate('/customers');
+                                                                setAlert({
+                                                                            active  : true, 
+                                                                            type    : "success", 
+                                                                            message : 'Client Modifier avec Succes !'
+                                                                        });
+                                                            }
+
+                        });
+                     }catch(error){
+                        console.error(error);
+                        setAlert({
+                                    active : true, 
+                                    type : "error", 
+                                    message : error.message
+                                });
+                     }
                 }else {
-                     response = await api.post('/customers', customer);
+
+                    try{
+                        await addCustomer(customer,{
+                            onSuccess : async () => {
+                                                            navigate('/customers');
+                                                            setAlert({
+                                                            active  : true, 
+                                                            type    : "success", 
+                                                            message : 'Client Ajouter avec Succes !'
+                                                                    });
+                                                        }
+                                                   
+                       } );
+                    }catch(error){
+                                    setAlert({
+                                        active  : true, 
+                                        type    : "error", 
+                                        message : error.message
+                                    });
+                                     console.error(error);
+                    }
                 }  
-                // Check response status and navigate accordingly
-                if(response.status === 201){ 
-                    navigate('/customers');
-                    setAlert({
-                        active : true, 
-                        type : "success", 
-                        message : 'Client Ajouté avec Succes !'});
-                }if(response.status === 200){ 
-                    navigate('/customers');
-                    setAlert({
-                        active : true, 
-                        type : "success", 
-                        message : 'Client Modifier avec Succes !'
-                    });
-                }
-            }catch(error){
-                setAlert({
-                    active : true, 
-                    type : "error", 
-                    message : error.message
-                });
-                    
-            }
+                
     }
 
   

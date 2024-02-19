@@ -6,7 +6,9 @@ import useAlert from "../../hooks/useAlert";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import useGetVehicles,{useDeleteVehicle} from "../../services/VehicleService";
 import { useNavigate, Link } from "react-router-dom";
+import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -23,8 +25,10 @@ function Vehicles() {
     const endPoint = 'vehicles';
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='vehicleform';
-    const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
+    const { data, isLoading, isError } = useGetVehicles(page);
+    const {mutateAsync : deleteVehicle, isError : deleteError} = useDeleteVehicle();
+    const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     // Define columns for the DataGrid
     const vehicleColumns = [
         { field: 'id',
@@ -81,16 +85,6 @@ function Vehicles() {
           }
       ];
 
-    const fetchVehicles  =  (page) => api.get(`/${endPoint}?page=${page.page}&pageSize=${page.pageSize}`).then((res) =>{ return res});
-
-     // Use React Query to fetch vehicles data and manage the state
-    const result = useQuery({
-        queryKey: ['vehicles', page],
-        queryFn: () => fetchVehicles(page),
-        keepPreviousData : true
-    });
-    const { data, isLoading, isError } = result;
-
 
 
 
@@ -106,20 +100,26 @@ function Vehicles() {
 
 
     const handleDeleteClick =  ({id}) => {
-        mutation.mutate(id, {
-            onSuccess:  () => {
-                setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
-                apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
-            },
-            onError: (error) => {
-                // Handle error, like showing an error message
-                setAlert({active : true, type : "error" ,message : error.message});
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('vehicles')
-              },
-        });
-      };  
+            openPopup();
+            setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
+            setNoAction(() => () => {});
+            setYesAction(() => () => { 
+                                         deleteVehicle(id, {
+                                            onSuccess:  () => {
+                                                setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
+                                                apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                            },
+                                            onError: (error) => {
+                                                // Handle error, like showing an error message
+                                                if(error.response.status){
+                                                    console.log(error)
+                                                setAlert({active : true, type : "error" ,message : error.message});
+                                                }
+                                            },
+                                        
+                                        });
+            })  
+        }
 
      // Display a loading spinner while data is being fetched
     if(isLoading){
