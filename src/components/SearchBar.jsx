@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import api from '../services/axios-service';
 import { useQuery, refetch } from 'react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 
@@ -20,10 +20,22 @@ const SearchBar = (props) => {
     const endPointVehicle = 'vehicles';
 
     // Function to fetch customer names from the API
-    const fetchCustomersName  =  async () =>  await api.get(`/${endPointCustomer}?pageSize=all`).then((res) =>{ return res});
+    const fetchCustomersName  =  async () => { 
+                                    try{
+                                        return await api.get(`/${endPointCustomer}?pageSize=all`);
+                                        }catch(error){
+                                            console.log(error);
+                                        }
+                                }
 
     // Function to fetch customer vehicles based on the selected customer ID
-    const fetchCustomerVehicles = async () => await api.get(`/${endPointVehicle}?customerId[eq]=${selectedCustomerId}`).then((res) =>{ return res});
+    const fetchCustomerVehicles = async () =>{ 
+                                try{
+                                   return await api.get(`/${endPointVehicle}?customerId[eq]=${selectedCustomerId}`);
+                            
+                                }catch(error){
+                                    console.log(error);
+                                }}
 
     // Use React Query to fetch customer name and manage the state
     const result1 = useQuery({
@@ -35,20 +47,23 @@ const SearchBar = (props) => {
     const { data : customers ,isLoading : isLoading1 , isError : isError1 } = result1;
 
     
-    const result2 = useQuery(
-         ['customerVehicles', selectedCustomerId],
-         fetchCustomerVehicles,
-         
-         {   enabled: selectedCustomerId != null}
+    const result2 = useQuery({
+         querykey : ['customerVehicles', selectedCustomerId],
+         queryFn : () => fetchCustomerVehicles(),
+         enabled: selectedCustomerId != null
         
-    );
-    const { data : customerVehicles ,isLoading : isLoading2 , isError : isError2, refetch } = result2;
+        });
+    const { data : vehicles ,isLoading : isLoading2 , isError : isError2 , refetch} = result2;
+
+    useEffect(() => {
+        console.log(vehicles)
+    },[selectedCustomerId])
     
     
 
 
     return (
-        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden w-1/2">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div className=" w-full md:1/2">
                     <form className=" flex  space-x-8 ">
@@ -59,7 +74,7 @@ const SearchBar = (props) => {
                                 disableClearable
                                 id="customer-name"
                                 getOptionLabel={(option) => option.label}
-                                onChange={(e,option) => { setSelectedCustomerId(option.id,() => refetch());}}
+                                onChange={(e,option) => { props.handelFetchData(option.id);}}
                                 options={customers?.data}
                                 renderInput={(params) => <TextField
                                                             {...params} 
@@ -71,13 +86,13 @@ const SearchBar = (props) => {
                                 
                                 />}
                             />
-                            <Autocomplete
+                            {/* <Autocomplete
                                 fullWidth
                                 disabled={isError2 || selectedCustomerId == null}
                                 autoHighlight
                                 disableClearable
                                 id="customer-name"
-                                options={customerVehicles?.data?.data}
+                                options={vehicles?.data?.data}
                                 onChange={(e, option) => props.handelFetchData(option.id)}
                                 getOptionLabel={(option) => option.plateNumber}
                                 renderInput={(params) => <TextField
@@ -89,7 +104,7 @@ const SearchBar = (props) => {
                                                             }} 
                                 
                                 />}
-                            />
+                            /> */}
                     </form>
                 </div>
                 <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
@@ -116,7 +131,7 @@ const SearchBar = (props) => {
                                 <a href="#" className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete all</a>
                             </div>
                         </div> */}
-                        <button id="filterDropdownButton" data-dropdown-toggle="filterDropdown" className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="button">
+                        {/* <button id="filterDropdownButton" data-dropdown-toggle="filterDropdown" className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="button">
                             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4 mr-2 text-gray-400" viewbox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
                             </svg>
@@ -124,7 +139,7 @@ const SearchBar = (props) => {
                             <svg className="-mr-1 ml-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path clip-rule="evenodd" fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                             </svg>
-                        </button>
+                        </button> */}
                         {/* <div id="filterDropdown" className="z-10 hidden w-56 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
                             <h6 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Category</h6>
                             <ul className="space-y-2 text-sm" aria-labelledby="filterDropdownButton">

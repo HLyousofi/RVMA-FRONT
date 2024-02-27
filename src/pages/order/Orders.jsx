@@ -30,6 +30,7 @@ function Orders() {
     const endPointEdit ='orderform';
     const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
+    const [customerId, setCustomerId] = useState();
     const [page, setPage] = useState({page : 1, pageSize : 15});
 
     const ordersColumns = [
@@ -119,20 +120,19 @@ function Orders() {
     
     }  
 
-    const fetchOrders  =  (page) => api.get(`/${endPoint}?page=all&vehicleId[eq]=${vehicleId}`).then((res) =>{ return res});
+    const fetchOrders  =  () => api.get(`/${endPoint}?page=all&customerId[eq]=${customerId}`).then((res) =>{ return res});
 
     const result = useQuery({
-        queryKey: ['orders', vehicleId],
-        queryFn: () => fetchOrders(page),
+        queryKey: ['orders', customerId],
+        queryFn: () => fetchOrders(),
         keepPreviousData : true,
         //enabled: enable,
     });
     const { data, isLoading, isError } = result;
 
-    const handelFetchData = (vehicleId) => {
-       // setEnable(true);
-       
-        setVehicleId(vehicleId, () => setEnable(false))
+    const handelFetchData = (id) => {
+        
+        setCustomerId(id);
 
     }
     
@@ -158,7 +158,7 @@ function Orders() {
                         </div>
                     </div>
                     <SearchBar handelFetchData={handelFetchData} />
-                    {vehicleId && 
+                    {customerId && 
                         <div className="block w-full overflow-x-auto">
                                 <DataGrid 
                                     columnVisibilityModel={{
