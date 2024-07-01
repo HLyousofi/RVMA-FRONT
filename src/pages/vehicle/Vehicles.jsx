@@ -31,47 +31,51 @@ function Vehicles() {
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     // Define columns for the DataGrid
     const vehicleColumns = [
-        { field: 'id',
-          headerName: 'ID', 
-          width: 90 
-        },
+        // { field: 'id',
+        //   headerName: 'ID', 
+        //   width: 90,
+        //   editable: false,
+        // },
         {
           field: 'brand',
           headerName: 'Marque',
           width: 200,
-          editable: true,
+          editable: false
         },
         {
           field: 'model',
           headerName: 'Model',
           type: 'text',
           width: 200,
-          editable: true,
+          editable: false,
         },
         {
           field: 'plateNumber',
           headerName: 'Matricule',
-          sortable: false,
+          sortable: true,
+          editable: false,
           width: 200,
     
         },
+        // {
+        //   field: 'chassisNumber',
+        //   headerName: 'Numero de chassis',//affichage de numero de chassis
+        //   sortable: false,
+        //   width: 200,
+    
+        // },
         {
             field: 'fuelType',
             headerName: 'Carburant',
-            sortable: false,
+            sortable: true,
             width: 200,
-      
+            editable: false,
           },
           {
             field: 'customerName',
             headerName: 'Client',
             width: 200,
             editable: true,
-          },
-          {
-            field: 'customerId',
-            headerName: 'ClientID',
-            //editable: true,
           },
           {
             field: 'actions',

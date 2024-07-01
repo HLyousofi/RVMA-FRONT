@@ -20,10 +20,11 @@ axiosClient.interceptors.response.use((response) => {
     const {response} = error;
     if(response && response.status >= 500){
         localStorage.clear();
-        const  params = {errorCode : response.status, errorMessage : response.statusText};
-        const queryString = new URLSearchParams(params).toString();
-        window.location.replace(`/errorPage?${queryString}`);
+       const  params = {errorCode : response.status, errorMessage : response.statusText};
+       const queryString = new URLSearchParams(params).toString();
+       window.location.replace(`/errorPage?${queryString}`);
     }else if(response.status == 401){
+        console.error(response);
         window.location.replace("/");
         
     }else{

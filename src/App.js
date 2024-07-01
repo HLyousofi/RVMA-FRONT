@@ -11,6 +11,8 @@ import CustomerForm from './pages/customer/CustomerForm';
 import VehicleForm from './pages/vehicle/VehicleForm';
 import ErrorPage from './pages/page-error/page-error';
 import OrderForm from './pages/order/OrderForm';
+import Quotes from './pages/quote/Quotes';
+import QuoteForm from './pages/quote/QuoteForm';
 
 import { QueryClientProvider, QueryClient } from 'react-query';
 
@@ -32,7 +34,12 @@ function App() {
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/orders/orderform" element={<OrderForm />} />
                     <Route path="/invoices" element={<Invoices />} />
+                    <Route path="/quotes" element={<Quotes />} />
+                    <Route path="/quotes/quoteform" element={<QuoteForm />} />
+
                     <Route path="/logout" element={<LogOut />} />
+                    
+                    
                 </Route>
             </Route>
         </Routes>

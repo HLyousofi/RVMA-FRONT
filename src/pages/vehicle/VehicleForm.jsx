@@ -16,7 +16,8 @@ const VehicleForm = () => {
     const brandRef = useRef(null); 
     const modelRef = useRef(null); 
     const plateNumberRef = useRef(null); 
-    const fuelTypeRef = useRef(null); 
+    const fuelTypeRef = useRef(null);
+    const chassisNumberRef = useRef(null);
     
     // State variables
     const [formTitle, setFormTitle] = useState('Nouveau Vehicule')
@@ -26,6 +27,7 @@ const VehicleForm = () => {
     const [brandError, setBrandError] = useState();
     const [plateNumberError, setPlateNumberError] = useState();
     const [fuelTypeError, setFuelTypeError] = useState();
+    const [chassisNumberError, setChassisNumberError] = useState();
     const [customerId, setCustomerId] = useState(null);
     const [id, setId] = useState(null);
 
@@ -103,6 +105,10 @@ const VehicleForm = () => {
             setPlateNumberError(true);
             return;
         }
+        if(chassisNumberRef?.current?.value?.length < 3){
+            setChassisNumberError(true);
+            return;
+        }
        
         let response;
            
@@ -113,7 +119,8 @@ const VehicleForm = () => {
             brand : brandRef?.current?.value,
             model : modelRef?.current?.value, 
             plateNumber : plateNumberRef?.current?.value, 
-            fuelType : fuelTypeRef?.current?.value 
+            fuelType : fuelTypeRef?.current?.value,
+            chassisNumber : chassisNumberRef?.current?.value 
         };
 
         try {
@@ -163,7 +170,8 @@ const VehicleForm = () => {
                                             disableClearable
                                             id="customer-name"
                                             options={data?.data}
-                                            getOptionKey={(option) => setCustomerId(option.id)}
+                                            getOptionKey={(option) => option.id}
+                                            onChange={(event, newValue) => setCustomerId(newValue.id)}
                                             inputValue={location?.state?.customerName}
                                             renderInput={(params) => <TextField
                                                                         inputRef={customerIdRef} 
@@ -237,6 +245,15 @@ const VehicleForm = () => {
                                             />
                                         </div>
                                     <div className=" flex-initial w-[45%] ml-[10%] " >
+                                        <TextField  
+                                                type="text" 
+                                                required 
+                                                fullWidth 
+                                                label="NUMERO DE CHASSIS" 
+                                                error={chassisNumberError} 
+                                                inputRef={chassisNumberRef} 
+                                                variant="outlined" 
+                                            />
                                      
                                     </div>
                                 </div>

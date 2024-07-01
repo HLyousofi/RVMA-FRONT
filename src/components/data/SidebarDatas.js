@@ -7,6 +7,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import StoreIcon from '@mui/icons-material/Store';
 
  const SidebarData = [
     {
@@ -20,7 +21,12 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
         link :  "vehicles"
     },
     {
-        title : "Orders",
+        title : "Devis",
+        icon : <RequestQuoteIcon />,
+        link :  "quotes"
+    },
+    {
+        title : "Orders de Reparation",
         icon : <CarRepairIcon />,
         link :  "orders"
     },
@@ -30,9 +36,9 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
         link :  "invoices"
     },
     {
-        title : "Devis",
-        icon : <RequestQuoteIcon />,
-        link :  "quotes"
+        title : "Produit",
+        icon : <StoreIcon />,
+        link : "product"
     },
     {
         title : "Fournisseur",

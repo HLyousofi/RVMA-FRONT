@@ -32,28 +32,30 @@ function Customers() {
 
     // Define columns for the DataGrid
     const customerColumns = [
-        { field: 'id',
-          headerName: 'ID', 
-          width: 90 
-        },
+        // { field: 'id',
+        //   headerName: 'ID', 
+        //   width: 90 ,
+        //   editable: false,
+        // },
         {
           field: 'name',
           headerName: 'Name',
           width: 200,
-          editable: true,
+          editable: false,
+          sortable: true
         },
         {
           field: 'adress',
           headerName: 'Adresse',
           width: 400,
-          editable: true,
+          editable: false,
         },
         {
           field: 'email',
           headerName: 'Email',
           type: 'email',
           width: 250,
-          editable: true,
+          editable: false,
         },
         {
           field: 'phoneNumber',

@@ -17,21 +17,24 @@ import {
 
 
 
-// Define the functional component Orders
-const Orders = () => {
-    // Initialize state and variables
-    const [orders, setOrders] = useState();
+
+
+
+
+
+const Quote = () => {
+    const [quotes, setQuotes] = useState();
     const [vehicleId, setVehicleId] = useState();
     const [enable, setEnable] = useState(false);
     const {setAlert} = useAlert();
-    const endPoint = 'order';
-    const endPointEdit ='orderform';
+    const endPoint = 'quotes';
+    const endPointEdit ='quoteform';
     const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
     const [customerId, setCustomerId] = useState();
     const [page, setPage] = useState({page : 1, pageSize : 15});
 
-    const ordersColumns = [
+    const quotesColumns = [
         { field: 'id',
           headerName: 'ID', 
           width: 90 
@@ -49,46 +52,46 @@ const Orders = () => {
           width: 200,
     
         },
-          {
-            field: 'vehicle',
-            headerName: 'vehicule',
-            type: 'text',
-            width: 200,
-            editable: true,
-          },
-          {
-            field: 'plateNumber',
-            headerName: 'Matricule',
-            type: 'text',
-            width: 150,
-            editable: true,
-          },
-          {
-            field: 'price',
-            headerName: 'Prix',
-            sortable: false,
-            width: 150,
-            renderCell: params => formatPrice(params.row.price)
-      
-          },
-          {
-            field: 'status',
-            headerName: 'Status',
-            width: 150,
-            editable: true,
-            renderCell: params => <Chip label={status[params.row.status].faild} color={status[params.row.status].color} variant="outlined" />
-            
-          },
-          {
-            field: 'actions',
-            headerName: 'Actions',
-            type: 'actions',
-            width: 100,
-            getActions: ({id}) => [
-              <GridActionsCellItem icon={<EditIcon />} label="Edit"  />,
-              ///*<GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
-            ],
-          },
+        {
+          field: 'vehicle',
+          headerName: 'vehicule',
+          type: 'text',
+          width: 200,
+          editable: true,
+        },
+        {
+          field: 'plateNumber',
+          headerName: 'Matricule',
+          type: 'text',
+          width: 150,
+          editable: true,
+        },
+        {
+          field: 'price',
+          headerName: 'Prix',
+          sortable: false,
+          width: 150,
+          renderCell: params => formatPrice(params.row.price)
+    
+        },
+        {
+          field: 'status',
+          headerName: 'Status',
+          width: 150,
+          editable: true,
+          renderCell: params => <Chip label={status[params.row.status].faild} color={status[params.row.status].color} variant="outlined" />
+          
+        },
+        {
+          field: 'actions',
+          headerName: 'Actions',
+          type: 'actions',
+          width: 100,
+          getActions: ({id}) => [
+            <GridActionsCellItem icon={<EditIcon />} label="Edit"  />,
+            ///*<GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
+          ],
+        },
       ];
       const status = {
         "E" : {
@@ -118,11 +121,11 @@ const Orders = () => {
     
     }  
 
-    const fetchOrders  =  () => api.get(`/${endPoint}?page=all&customerId[eq]=${customerId}`).then((res) =>{ return res});
+    const fetchQuotes  =  () => api.get(`/${endPoint}`).then((res) =>{ return res});
 
     const result = useQuery({
-        queryKey: ['orders', customerId],
-        queryFn: () => fetchOrders(),
+        queryKey: ['quotes', customerId],
+        queryFn: () => fetchQuotes(),
         keepPreviousData : true,
         //enabled: enable,
     });
@@ -148,7 +151,7 @@ const Orders = () => {
                     <div className="rounded-t mb-0 px-4 py-3 border-0">
                         <div className="flex flex-wrap items-center">
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                            <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Orders</h3>
+                            <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Devis</h3>
                             </div>
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
                                 <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
@@ -163,7 +166,7 @@ const Orders = () => {
                                         customerId: false,
                                     }}
                                     paginationMode="server"
-                                    columns={ordersColumns}
+                                    columns={quotesColumns}
                                     rows={data?.data?.data}
                                     initialState={{
                                         pagination: {
@@ -183,9 +186,9 @@ const Orders = () => {
 
                 </div>
             </section>
-                
-    );
+        
 
+    );
 }
 
-export default Orders;
+export default Quote;

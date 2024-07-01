@@ -15,23 +15,21 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useAlert from '../../hooks/useAlert';
 import { Button } from '@mui/material';
 import RelativeAlertComponent from '../../components/ui/RelativeAlertComponent';
+import { useForm } from "react-hook-form";
 
 // Functional component definition for the login page
 function Login() {
-    // State and ref initialization
-    const refLogin = useRef('');
-    const refPwd = useRef('');
-    const refSubmit = useRef('');
 
+
+    const { register, 
+            handleSubmit,
+            setError, 
+            formState : { errors } } = useForm();
     // Custom hook for displaying alerts
     const {setAlert} = useAlert();
 
     // React router navigation hook
     const navigate = useNavigate();
-
-    // State for handling errors
-    const [error, setError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState();
 
     // State for password visibility
     const [showPassword, setShowPassword] = useState();
@@ -45,31 +43,33 @@ function Login() {
         setShowPassword(!showPassword);
     }
 
-    // Function to handle form submission
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        if(refLogin.current.value.length > 0 && refPwd.current.value.length > 0 ){
-            const login = {email : refLogin.current.value, password : refPwd.current.value};
+
+    // const onSubmit = ( e, data ) => {
+    //     e.eventDefault();
+    //     console.log(data);
+
+    // }
+
+    const onSubmit = async (data) => {
             try {
-                const response = await api.post('/login', login );
-                if(response.data.succes){
+                const response = await api.post('/login', data );
+                if(response.data.success){
                         setApiToken(response.data.accessToken); 
                         navigate('/customers');
                         setAlert({active : true, type : "success", message : 'Connexion réussie !'});
                 }else {
-                    setError(true);
-                    setErrorMessage("Login ou mot de passe incorrect.");
+                    setError("email", { message : response?.data?.error})
                     setApiToken();
                 }
-            }catch(error) {
-                if(error?.response?.status < 500){
-                    setError(true);
-                    setErrorMessage("Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !");
+            }catch(err) {
+                console.log(err)
+                if(err?.response?.status < 500){
+                    setError("email",{message : "Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !"});
                 }
             }
-        }
-        
+        // }
     }
+
 
     // JSX structure for rendering the component
     return (
@@ -79,24 +79,44 @@ function Login() {
                         <img src={accueilImage} alt="Placeholder Image" className="object-cover  h-full" />
                     </div>
                     <div className="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
-                        { error && <RelativeAlertComponent 
-                            props={{severity:"error",msg : errorMessage}}
+                        { errors.email && <RelativeAlertComponent 
+                            props={{severity:"error",msg : errors.email.message}}
                         />
                         }
-                        <form onSubmit={handleSubmit}>
+                        { errors.password && <RelativeAlertComponent 
+                            props={{severity:"error",msg : errors.password.message}}
+                        />
+                        }
+                        <form onSubmit={handleSubmit(onSubmit)}>
                             {/* <!-- Username Input --> */}
                             <div className="mb-4">
-                            <TextField id="outlined-basic" error={error} fullWidth label="Login" inputRef={refLogin} variant="outlined" />
+                            <TextField id="outlined-basic" 
+                                       fullWidth 
+                                       label="Login" 
+                                       {...register("email",{
+                                        required : "email is required",
+                                        validate : (value) => {
+                                            if(!value.includes('@')){
+                                                return "email must inlcude @";
+                                            }
+                                            return true;
+                                        } 
+                                       })}
+                                       variant="outlined" />
                             </div>
                             {/* <!-- Password Input --> */}
                             <div className="mb-4">
                             <FormControl  fullWidth variant="outlined">
                                 <InputLabel htmlFor="outlined-adornment-password">Mot de passe</InputLabel>
                                 <OutlinedInput
-                                    error={error}
                                     id="outlined-adornment-password"
                                     type={showPassword ? 'text' : 'password'}
-                                    inputRef={refPwd}
+                                    {...register("password",{
+                                        required : "password is required",
+                                        minLength : {value : 8,
+                                                     message : "password must have least 8 caracters"
+                                        }
+                                    })}
                                     endAdornment={
                                     <InputAdornment position="end">
                                         <IconButton
@@ -114,7 +134,13 @@ function Login() {
                             </div>
                             {/* <!-- Login Button --> */}
                             <div className='mt-12'>
-                                <Button  type="submit"   fullWidth variant="contained" size="large"  ref={ refSubmit }   >Login</Button>
+                                <Button  
+                                    type="submit"   
+                                    fullWidth 
+                                    variant="contained" 
+                                    size="large"  
+                                    >Login
+                                </Button>
                             </div>
                         </form>
                     </div>

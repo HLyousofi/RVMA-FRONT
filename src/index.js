@@ -5,13 +5,12 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './contexts/AuthProvider';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
 import { ThemeProvider } from './contexts/ThemeProvider';
 import { AlertProvider } from './contexts/AlertProvider';
 import { PopupProvider } from './contexts/PopupProvider';
+
+
+
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
