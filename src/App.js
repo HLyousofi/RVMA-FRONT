@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import Login from './pages/login/LogIn';
+import Admin from './pages/admin/Admin';
 import LogOut from './pages/login/LogOut'
 import Customers from './pages/customer/Customers';
 import ResquireAuth from './components/RequireAuth';
@@ -13,6 +14,7 @@ import ErrorPage from './pages/page-error/page-error';
 import OrderForm from './pages/order/OrderForm';
 import Quotes from './pages/quote/Quotes';
 import QuoteForm from './pages/quote/QuoteForm';
+import AdminLayout from './layout/AdminLayout';
 
 import { QueryClientProvider, QueryClient } from 'react-query';
 
@@ -27,8 +29,17 @@ function App() {
             <Route path="/errorPage" element={<ErrorPage />}></Route>
             <Route element={<ResquireAuth />}>
                 <Route element={<Layout />} >
+
+                  {/* Admin section  */}
+                  <Route  path="admin" element={<AdminLayout />}>
+                    <Route path="admin" element={<Admin />} />
+                    <Route path="users" element={<Admin />} />
+                    <Route path="mangePrevilege" element={<Admin />} />
+                    <Route path="settings" element={<Admin />} />
+                  </Route>
+                  {/* Customer Section */}
                     <Route path="/customers" element={<Customers />} />
-                    <Route path="/customers/customerform" element={<CustomerForm />} />
+                    <Route path="/customers/customerform"  element={<CustomerForm />} />
                     <Route path="/vehicles" element={<Vehicles />} />
                     <Route path="/vehicles/vehicleform" element={<VehicleForm />} />
                     <Route path="/orders" element={<Orders />} />
@@ -36,10 +47,7 @@ function App() {
                     <Route path="/invoices" element={<Invoices />} />
                     <Route path="/quotes" element={<Quotes />} />
                     <Route path="/quotes/quoteform" element={<QuoteForm />} />
-
                     <Route path="/logout" element={<LogOut />} />
-                    
-                    
                 </Route>
             </Route>
         </Routes>

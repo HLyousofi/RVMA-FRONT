@@ -1,6 +1,6 @@
 // Import necessary React and external dependencies
 import {  useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Outlet } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
@@ -127,14 +127,14 @@ function Customers() {
     else return (
         
             <section >
-                    <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6  rounded ">
+                    <div className="relative flex flex-col  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] min-w-0 break-words  dark:bg-gray-800 w-full mb-6  rounded-xl ">
                         <div className="rounded-t mb-0 px-4 py-3 border-0">
                             <div className="flex flex-wrap items-center">
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                                <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Clients</h3>
+                                  <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Clients</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
+                                    <Link to={`${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
                                 </div>
                             </div>
                         </div>
@@ -158,6 +158,7 @@ function Customers() {
                                />
                         </div>
                     </div>
+                    <Outlet />
             </section>
                 
     );
