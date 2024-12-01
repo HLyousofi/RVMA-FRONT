@@ -1,30 +1,23 @@
-import CarRepairIcon from '@mui/icons-material/CarRepair';
-import TimeToLeaveIcon from '@mui/icons-material/TimeToLeave';
-import PeopleIcon from '@mui/icons-material/People';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import BadgeIcon from '@mui/icons-material/Badge';
+import TuneIcon from '@mui/icons-material/Tune';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
-import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import StoreIcon from '@mui/icons-material/Store';
 
  const NavbarAdminData = [
     {
-        title : "users",
-        icon : < PeopleIcon />,
+        title : "utilisateurs",
+        icon : <BadgeIcon />,
         link : "users"
     },
     {
-        title : "information",
-        icon : < TimeToLeaveIcon />,
-        link :  "mangePrevilege"
-    },
-    {
-        title : "Parametre",
-        icon : <RequestQuoteIcon />,
+        title : "Paramètre",
+        icon : <TuneIcon />,
         link :  "settings"
-    }
+    }, 
+    {
+        title : "Gestion des Gôles",
+        icon : <AdminPanelSettingsIcon  />,
+        link :  "mangeRoles"
+    },
     // {
     //     title : "Orders de Reparation",
     //     icon : <CarRepairIcon />,

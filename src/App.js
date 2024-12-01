@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 import Login from './pages/login/LogIn';
-import Admin from './pages/admin/Admin';
 import LogOut from './pages/login/LogOut'
 import Customers from './pages/customer/Customers';
 import ResquireAuth from './components/RequireAuth';
@@ -15,8 +14,12 @@ import OrderForm from './pages/order/OrderForm';
 import Quotes from './pages/quote/Quotes';
 import QuoteForm from './pages/quote/QuoteForm';
 import AdminLayout from './layout/AdminLayout';
-
+import Users from './pages/admin/users/Users';
+import ManageRoles from './pages/admin/roles/MangeRoles';
+import Settings from './pages/admin/setings/Settings';
+import { Navigate } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from 'react-query';
+import RoleForm from './pages/admin/roles/RoleForm';
 
 
 const queryClient = new QueryClient();
@@ -32,10 +35,13 @@ function App() {
 
                   {/* Admin section  */}
                   <Route  path="admin" element={<AdminLayout />}>
-                    <Route path="admin" element={<Admin />} />
-                    <Route path="users" element={<Admin />} />
-                    <Route path="mangePrevilege" element={<Admin />} />
-                    <Route path="settings" element={<Admin />} />
+                    <Route index element={<Navigate to="/admin/users" replace />} />
+                    <Route path="users" element={<Users />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="mangeRoles" element={<ManageRoles />} />
+                    <Route path="/admin/mangeRoles/roleForm" element={<RoleForm />} />
+
+                    {/* <Route path="settings" element={<Admin />} /> */}
                   </Route>
                   {/* Customer Section */}
                     <Route path="/customers" element={<Customers />} />

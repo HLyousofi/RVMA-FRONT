@@ -3,11 +3,11 @@ import TimeToLeaveIcon from '@mui/icons-material/TimeToLeave';
 import PeopleIcon from '@mui/icons-material/People';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import StoreIcon from '@mui/icons-material/Store';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
  const SidebarData = [
     {
@@ -53,7 +53,7 @@ import StoreIcon from '@mui/icons-material/Store';
 
     {
         title : "Admin",
-        icon : <AdminPanelSettingsIcon />,
+        icon : <ManageAccountsIcon />,
         link :  "admin"
     },
     {

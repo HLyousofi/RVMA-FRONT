@@ -1,11 +1,7 @@
 
-import useGetUsers, {useDeleteUser} from "../../services/UserService";
-import UserTable from "../../components/UsersTable";
-import { useState } from "react";
-import CircularIndeterminate from "../../components/ui/CircularIndeterminate";
 
 
-function Admin () {
+ const Users = () => {
 
     // const [page, setPage] = useState({page : 1, pageSize : 15});
     // const { data, isLoading, isError } = useGetUsers(page);
@@ -20,7 +16,7 @@ function Admin () {
     //     return <p>Error fetching data</p>;
     // }else 
     return (
-        <div>admin page</div>
+        <div>Users page</div>
 //          <div className="relative flex flex-col  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] min-w-0 break-words  dark:bg-gray-800 w-full mb-6  rounded-xl ">
         
 //             <div class="flex space-x-4">
@@ -53,4 +49,4 @@ function Admin () {
 }
 
                     
-export default Admin;
+export default Users;
