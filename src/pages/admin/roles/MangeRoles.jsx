@@ -1,11 +1,22 @@
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import AddButton from "../../../components/ui/AddButton";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+
+
 
 
 
 const ManageRoles = () => {
+
+    const endPointEdit = "roleForm";
     return (
-        <Link to="/admin/mangeRoles/roleForm"><Button variant="contained">Ajouter</Button></Link>
+        
+        // <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
+        <div className="relative w-full px-2 max-w-full flex-grow flex-1 text-right">
+                                    <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
+                                </div>
+
 
     );
 }

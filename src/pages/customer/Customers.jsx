@@ -1,21 +1,19 @@
 // Import necessary React and external dependencies
 import {  useState } from "react";
-import { useNavigate, Link, Outlet } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import useGetCustomers, { useDeleteCustomer } from "../../services/CustomerService";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
+import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
     GridActionsCellItem,
     useGridApiRef
   } from '@mui/x-data-grid';
-
-
-
 
 // Define the functional component Customers
 function Customers() {
@@ -134,7 +132,7 @@ function Customers() {
                                   <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Clients</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <Link to={`${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
+                                    <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
                                 </div>
                             </div>
                         </div>
