@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import useAlert from '../../hooks/useAlert';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { usePostCustomer, useUpdateCustomer} from '../../services/CustomerService';
+import SaveButton from '../../components/ui/SaveButton';
+import ResetButton from '../../components/ui/ResetButton';
 
 
 const CustomerForm = () => {
@@ -175,9 +177,9 @@ const CustomerForm = () => {
                                        {hiddenIce && <TextField type="number" inputRef={iceRef}  required fullWidth label="ICE" variant="outlined" />}
                                     </div>
                                 </div>
-                                <div className=" flex justify-end mt-4 ">
-                                    <Button variant="outlined" type="reset" color="secondary" sx={{marginRight: 4 }} >annuler</Button>
-                                    <Button variant="outlined" type="submit" color="success" >{buttonAction}</Button>
+                                <div className=" flex justify-end mt-4 gap-2 ">
+                                    <ResetButton  />
+                                    <SaveButton />
                                 </div>
                             </form>
                         </div>

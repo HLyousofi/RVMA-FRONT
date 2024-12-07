@@ -8,6 +8,7 @@ import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import useGetVehicles,{useDeleteVehicle} from "../../services/VehicleService";
 import { useNavigate, Link } from "react-router-dom";
+import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
@@ -145,7 +146,7 @@ function Vehicles() {
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Vehicules</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
+                                    <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
                                 </div>
                             </div>
                         </div>

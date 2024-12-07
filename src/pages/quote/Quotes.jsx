@@ -6,9 +6,10 @@ import useAlert from "../../hooks/useAlert";
 import { Chip } from "@mui/material";
 import formatPrice from "../../utils/utility";
 import { useQuery, useQueryClient } from "react-query";
-
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useNavigate, Link } from "react-router-dom";
+import AddButton from "../../components/ui/AddButton";
+
+
 import {
     DataGrid,
     GridActionsCellItem,
@@ -35,10 +36,10 @@ const Quote = () => {
     const [page, setPage] = useState({page : 1, pageSize : 15});
 
     const quotesColumns = [
-        { field: 'id',
-          headerName: 'ID', 
-          width: 90 
-        },
+        // { field: 'id',
+        //   headerName: 'ID', 
+        //   width: 90 
+        // },
         {
           field: 'name',
           headerName: 'Nature',
@@ -154,7 +155,7 @@ const Quote = () => {
                             <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Devis</h3>
                             </div>
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
+                              <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
                             </div>
                         </div>
                     </div>

@@ -1,11 +1,12 @@
 import TextField from '@mui/material/TextField';
-import { Button } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useQuery  } from "react-query";
+import SaveButton from '../../components/ui/SaveButton';
+import ResetButton from '../../components/ui/ResetButton';
 
 
 
@@ -257,9 +258,9 @@ const VehicleForm = () => {
                                      
                                     </div>
                                 </div>
-                                <div className=" flex justify-end mt-4 ">
-                                    <Button variant="outlined" type="reset" color="secondary" sx={{marginRight: 4 }} >annuler</Button>
-                                    <Button variant="outlined" type="submit" color="success" >{buttonAction}</Button>
+                                <div className=" flex justify-end mt-4 gap-2">
+                                <ResetButton  />
+                                <SaveButton />
                                 </div>
                             </form>
                         </div>
