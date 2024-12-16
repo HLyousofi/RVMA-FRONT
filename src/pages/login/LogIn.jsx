@@ -1,6 +1,6 @@
 // Importing necessary modules and resources
 import accueilImage from '../../assets/images/accueil-photo.png';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import api  from '../../services/axios-service';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -9,13 +9,13 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useAlert from '../../hooks/useAlert';
 import { Button } from '@mui/material';
 import RelativeAlertComponent from '../../components/ui/RelativeAlertComponent';
 import { useForm } from "react-hook-form";
+import InputField from '../../components/ui/InpuField';
 
 // Functional component definition for the login page
 function Login() {
@@ -23,7 +23,8 @@ function Login() {
 
     const { register, 
             handleSubmit,
-            setError, 
+            setError,
+            control, 
             formState : { errors } } = useForm();
     // Custom hook for displaying alerts
     const {setAlert} = useAlert();
@@ -90,20 +91,22 @@ function Login() {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             {/* <!-- Username Input --> */}
                             <div className="mb-4">
-                            <TextField id="outlined-basic" 
-                                       fullWidth 
-                                       label="Login" 
-                                       {...register("email",{
-                                        required : "email is required",
-                                        validate : (value) => {
-                                            if(!value.includes('@')){
-                                                return "email must inlcude @";
-                                            }
-                                            return true;
-                                        } 
-                                       })}
-                                       variant="outlined" />
+
+                            <InputField
+                             name="email"
+                             label="Email"
+                             type="text"
+                             control={control}
+                             rules={{
+                               required: 'Email is required',
+                               pattern: {
+                                 value: /^\S+@\S+\.\S+$/,
+                                 message: 'Enter a valid email',
+                               },
+                             }}
+                            />
                             </div>
+
                             {/* <!-- Password Input --> */}
                             <div className="mb-4">
                             <FormControl  fullWidth variant="outlined">
