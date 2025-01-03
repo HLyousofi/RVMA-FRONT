@@ -7,6 +7,10 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { useQuery  } from "react-query";
 import SaveButton from '../../components/ui/SaveButton';
 import ResetButton from '../../components/ui/ResetButton';
+import InputField from '../../components/ui/InpuField';
+import AutocompleteField from '../../components/ui/AutocompleteField';
+import { useForm } from "react-hook-form";
+
 
 
 
@@ -30,7 +34,13 @@ const VehicleForm = () => {
     const [fuelTypeError, setFuelTypeError] = useState();
     const [chassisNumberError, setChassisNumberError] = useState();
     const [customerId, setCustomerId] = useState(null);
+    const [fuelTypeId, setFuelTypeId] = useState(null);
     const [id, setId] = useState(null);
+
+    const {  
+        handleSubmit,
+        control,
+        reset } = useForm();
 
 
 
@@ -39,7 +49,17 @@ const VehicleForm = () => {
     const {setAlert} = useAlert();
     const endPoint = 'vehicles';
     const endPointCustomer = 'customers';
-    const fuelTypes = ['Essance', 'Gazoil', 'Hybrid'];
+    const fuelTypes = [{id : 1, label :'Essance'}, {id : 2, label :'diesel'}, {id : 3, label :'Hybrid'}];
+
+    const vehicle = {
+        customerId : "",
+        customerName : "",
+        brand : "",
+        model : "", 
+        plateNumber : "", 
+        fuelType : "",
+        chassisNumber : ""
+    }
     
 
 
@@ -52,13 +72,13 @@ const VehicleForm = () => {
         keepPreviousData : true
     });
     const { data, isLoading, isError } = result;
-   
+
+    function getIdByLabel(data, label) {
+        const item = data.find(obj => obj.label === label);
+        return item ? item.id : null;
+    }
     
-
-
-    
-
-
+  
     useEffect(() => {
         
         // Populate form fields if editing an existing customer
@@ -68,11 +88,14 @@ const VehicleForm = () => {
                 setId(location.state?.id);
                 setCustomerId(location.state?.customerId);
                 setFormTitle('Id Vehicule :'+ location.state?.id);
-                customerIdRef.current.value = location.state?.customerName;
-                brandRef.current.value = location.state?.brand;
-                modelRef.current.value = location.state?.model;
-                plateNumberRef.current.value = location.state?.plateNumber;
-                fuelTypeRef.current.value = location.state?.fuelType;
+                const vehicleData = {
+                    customerId : location.state?.customerName,
+                    brand : location.state?.brand || '',
+                    model: location.state?.model || '',
+                    plateNumber : location.state?.plateNumber || '',
+                    fuelType : getIdByLabel(fuelTypes, location.state?.fuelType) || ''
+                }
+                reset(vehicleData);
             }
         }
 
@@ -81,48 +104,22 @@ const VehicleForm = () => {
 
 
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const onSubmit = async (data) => {
         // Validation checks before submitting the form
 
-        
-         if(customerId == null ){
-            setNameError(true);
-            return;
-        }
-        if(brandRef?.current?.value?.length < 3){
-            setBrandError(true);
-            return;
-        }
-        if(modelRef?.current?.value?.length < 2){
-            setModelError(true);
-            return;
-        } 
-        if(fuelTypeRef?.current?.value?.length < 3){
-            setFuelTypeError(true);
-            return;
-        }
-        if(plateNumberRef?.current?.value?.length < 3){
-            setPlateNumberError(true);
-            return;
-        }
-        if(chassisNumberRef?.current?.value?.length < 3){
-            setChassisNumberError(true);
-            return;
-        }
-       
         let response;
-           
-
         const vehicle = {
             customerId : customerId,
-            customerName : customerNameRef?.current?.value,
-            brand : brandRef?.current?.value,
-            model : modelRef?.current?.value, 
-            plateNumber : plateNumberRef?.current?.value, 
-            fuelType : fuelTypeRef?.current?.value,
-            chassisNumber : chassisNumberRef?.current?.value 
+            customerName : data.customerName,
+            brand : data.brand,
+            model : data.model, 
+            plateNumber : data.plateNumber, 
+            fuelType : data.fuelType.label,
         };
+    
+    
+
+        
 
         try {
             // Make API request based on whether it's a new vehicle or an update
@@ -137,13 +134,13 @@ const VehicleForm = () => {
                 setAlert({
                     active : true, 
                     type : "success", 
-                    message : 'Client Ajouté avec Succes !'});
+                    message : 'Voiture Ajouté avec Succes !'});
             }if(response.status === 200){ 
                 navigate(`/${endPoint}`);
                 setAlert({
                     active : true, 
                     type : "success", 
-                    message : 'Client Modifier avec Succes !'
+                    message : 'voiture Modifier avec Succes !'
                 });
             }
         }catch(error){
@@ -161,106 +158,94 @@ const VehicleForm = () => {
                     <div className="w-full h-full bg-white dark:bg-gray-800 rounded">
                         <div className="px-6 py-6 lg:px-8">
                             <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300">{ formTitle }</h3>
-                            <form className="space-y-16" onSubmit={handleSubmit}>
+                            <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
                                 <div className="flex  ">
                                     <div className="flex-initial w-[45%]">
-                                        <Autocomplete
-                                            fullWidth
-                                            autoHighlight
-                                            disabled={isLoading}
-                                            disableClearable
-                                            id="customer-name"
-                                            options={data?.data}
-                                            getOptionKey={(option) => option.id}
-                                            onChange={(event, newValue) => setCustomerId(newValue.id)}
-                                            inputValue={location?.state?.customerName}
-                                            renderInput={(params) => <TextField
-                                                                        inputRef={customerIdRef} 
-                                                                        {...params} 
-                                                                        label="Client"
-                                                                        required
-                                                                        error={nameError}
-                                                                        InputProps={{
-                                                                            ...params.InputProps,
-                                                                            type: 'search',
-                                                                          }} 
-                                            
-                                            />}
+                                        <AutocompleteField
+                                            name="customerName" 
+                                            options={data?.data} 
+                                            control={control}
+                                            onSelect={setCustomerId} 
+                                            isLoading={isLoading} 
+                                            label="Client"
                                         />
                                     </div>
                                     <div className=" flex-initial w-[45%] ml-[10%]">
-                                        <TextField  
-                                            type="text"  
-                                            fullWidth 
-                                            required
-                                            label="Marque" 
-                                            error={brandError}
-                                            inputRef={brandRef} 
-                                            variant="outlined" />
+                                        <InputField 
+                                            name="brand"
+                                            label="Marque"
+                                            type="text"
+                                            control={control}
+                                            rules={{
+                                                    required: 'Brand is required',
+                                                    minLength: {
+                                                            value : 2,
+                                                            message: 'Enter a valid name',
+                                                            },
+                                                    }}
+                                        />
                                     </div>
                                 </div>
                                 <div className="flex ">
                                     <div className="flex-initial w-[45%]">
-                                        <TextField 
-                                            type="text" 
-                                            error={modelError} 
-                                            required 
-                                            fullWidth 
-                                            label="Model" 
-                                            inputRef={modelRef} 
-                                            variant="outlined" />
+                                        <InputField 
+                                                name="model"
+                                                label="Model"
+                                                type="text"
+                                                control={control}
+                                                rules={{
+                                                        required: 'Model is required',
+                                                        minLength: {
+                                                                value : 2,
+                                                                message: 'Enter a valid name',
+                                                                },
+                                                        }}
+                                        />
                                     </div>
                                     <div className=" flex-initial w-[45%] ml-[10%]">
-                                        <TextField  
-                                            type="text" 
-                                            required 
-                                            fullWidth 
-                                            label="Matricule" 
-                                            error={plateNumberError} 
-                                            inputRef={plateNumberRef} 
-                                            variant="outlined" 
+                                        <InputField 
+                                            name="plateNumber"
+                                            label="Matricule"
+                                            type="text"
+                                            control={control}
+                                            rules={{
+                                                    required: 'Plate Number is required',
+                                                    minLength: {
+                                                            value : 2,
+                                                            message: 'Enter a valid name',
+                                                            },
+                                                    }}
                                         />
                                     </div>
                                 </div>
                                 <div className="flex ">
                                         <div className=" flex-initial w-[45%] ">
-                                            <Autocomplete
-                                                fullWidth
-                                                autoHighlight
-                                                disableClearable
-                                                defaultValue={location.state?.fuelType }
-                                                id="fuel-type"
-                                                options={fuelTypes}
-                                                renderInput={(params) => <TextField 
-                                                                            {...params} 
-                                                                            label="Carburant"
-                                                                            required
-                                                                            inputRef={fuelTypeRef}
-                                                                            error={fuelTypeError}
-                                                                            InputProps={{
-                                                                                ...params.InputProps,
-                                                                                type: 'search',
-                                                                            }} 
-                                                
-                                                />}
+                                            <AutocompleteField 
+                                                    name="fuelType"
+                                                    options={fuelTypes} 
+                                                    control={control}
+                                                    onSelect={setFuelTypeId} 
+                                                    label="Carburant"
                                             />
                                         </div>
-                                    <div className=" flex-initial w-[45%] ml-[10%] " >
-                                        <TextField  
-                                                type="text" 
-                                                required 
-                                                fullWidth 
-                                                label="NUMERO DE CHASSIS" 
-                                                error={chassisNumberError} 
-                                                inputRef={chassisNumberRef} 
-                                                variant="outlined" 
-                                            />
-                                     
-                                    </div>
+                                    {/* <div className=" flex-initial w-[45%] ml-[10%] " >
+                                        <InputField 
+                                            name="chassisNumber"
+                                            label="NUMERO DE CHASSIS"
+                                            type="text"
+                                            control={control}
+                                            rules={{
+                                                minLength: {
+                                                        value : 8,
+                                                        message: 'Enter a valid name',
+                                                        },
+                                                }}
+                                        />
+                                    </div> */}
                                 </div>
                                 <div className=" flex justify-end mt-4 gap-2">
-                                <ResetButton  />
-                                <SaveButton />
+                                    <ResetButton  />
+                                    <SaveButton />
                                 </div>
                             </form>
                         </div>

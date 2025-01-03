@@ -21,15 +21,7 @@ const CustomerForm = () => {
     const location = useLocation();
     const {mutateAsync : addCustomer} = usePostCustomer();
     const {mutateAsync : updateCustomer} = useUpdateCustomer();
-    const customer = {
-        name : "",
-        adress : "",
-        email : "", 
-        phoneNumber : "", 
-        type : "", 
-        ice : ""
-
-    }
+    
     const {  
         handleSubmit,
         control,
@@ -41,17 +33,21 @@ const CustomerForm = () => {
     useEffect(() => {
         // Populate form fields if editing an existing customer
         if(location.state){
+            console.log(location.state);
             setButtonAction('Modifier');
             setId(location.state?.id);
             setFormTitle('Id Client :'+ location.state?.id);
-            customer.name = location.state?.name;
-            customer.adress = location.state?.adress;
-            customer.email = location.state?.email; 
-            customer.phoneNumber = location.state?.phoneNumber; 
-            customer.type = location.state?.type == "B" ? true : false; 
-            customer.iceNumber = location.state?.ice;
-            setHiddenIce(customer.type)
-            reset(customer);
+            const customerData = {
+                name : location.state?.name || '',
+                adress : location.state?.adress || '',
+                email : location.state?.email || '', 
+                phoneNumber : location.state?.phoneNumber || '', 
+                type : location.state?.type === 'B', 
+                iceNumber : location.state?.ice || ''
+        
+            }
+            setHiddenIce(customerData.type)
+            reset(customerData);
         }else {
             setHiddenIce(false);
         }
@@ -65,13 +61,16 @@ const CustomerForm = () => {
 
     const onSubmit = async (data) => {
       
-        const type = data?.type  ? 'B' : 'I';
-        customer.name = data.name;
-        customer.adress = data.adress;
-        customer.email = data.email; 
-        customer.phoneNumber = data.phoneNumber; 
-        customer.type = type; 
-        customer.ice = data.iceNumber;
+        const customer = {
+        name : data.name,
+        adress : data.adress,
+        email : data.email, 
+        phoneNumber : data.phoneNumber, 
+        type : data.type ? "B" : "I", 
+        ice : data.iceNumber,
+
+        }
+        
                 
         if(location.state){
                 try{
