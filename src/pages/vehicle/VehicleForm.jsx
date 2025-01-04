@@ -16,31 +16,18 @@ import { useForm } from "react-hook-form";
 
 const VehicleForm = () => {
     // Refs for form fields
-    const customerNameRef = useRef(null);
-    const customerIdRef = useRef(null); 
-    const brandRef = useRef(null); 
-    const modelRef = useRef(null); 
-    const plateNumberRef = useRef(null); 
-    const fuelTypeRef = useRef(null);
-    const chassisNumberRef = useRef(null);
+   
     
     // State variables
     const [formTitle, setFormTitle] = useState('Nouveau Vehicule')
     const [buttonAction, setButtonAction] = useState('Ajouter');
-    const [nameError, setNameError] = useState(false);
-    const [modelError, setModelError] = useState();
-    const [brandError, setBrandError] = useState();
-    const [plateNumberError, setPlateNumberError] = useState();
-    const [fuelTypeError, setFuelTypeError] = useState();
-    const [chassisNumberError, setChassisNumberError] = useState();
-    const [customerId, setCustomerId] = useState(null);
     const [fuelTypeId, setFuelTypeId] = useState(null);
     const [id, setId] = useState(null);
 
     const {  
         handleSubmit,
         control,
-        reset } = useForm();
+        reset, watch } = useForm();
 
 
 
@@ -49,7 +36,7 @@ const VehicleForm = () => {
     const {setAlert} = useAlert();
     const endPoint = 'vehicles';
     const endPointCustomer = 'customers';
-    const fuelTypes = [{id : 1, label :'Essance'}, {id : 2, label :'diesel'}, {id : 3, label :'Hybrid'}];
+    const fuelTypes = [{id : 1, label :'Essance'}, {id : 2, label :'diesel'}, {id : 3, label :'Hybrid'}, {id : 4, label :'electric'}];
 
     const vehicle = {
         customerId : "",
@@ -86,14 +73,15 @@ const VehicleForm = () => {
             if(location.state){
                 setButtonAction('Modifier');;
                 setId(location.state?.id);
-                setCustomerId(location.state?.customerId);
+                // setCustomerId(location.state?.customerId);
                 setFormTitle('Id Vehicule :'+ location.state?.id);
+                // console.log(location.state);
                 const vehicleData = {
-                    customerId : location.state?.customerName,
+                    customer : {id : location.state?.customerId, label :location.state?.customerName},
                     brand : location.state?.brand || '',
                     model: location.state?.model || '',
                     plateNumber : location.state?.plateNumber || '',
-                    fuelType : getIdByLabel(fuelTypes, location.state?.fuelType) || ''
+                    fuelType :  location.state?.fuelType || ''
                 }
                 reset(vehicleData);
             }
@@ -106,20 +94,19 @@ const VehicleForm = () => {
 
     const onSubmit = async (data) => {
         // Validation checks before submitting the form
-
+       
+        
         let response;
+       
         const vehicle = {
-            customerId : customerId,
-            customerName : data.customerName,
-            brand : data.brand,
-            model : data.model, 
-            plateNumber : data.plateNumber, 
-            fuelType : data.fuelType.label,
+            customerId : data?.customer?.id,
+            brand : data?.brand,
+            model : data?.model, 
+            plateNumber : data?.plateNumber, 
+            fuelType : data?.fuelType.id,
         };
     
     
-
-        
 
         try {
             // Make API request based on whether it's a new vehicle or an update
@@ -161,13 +148,20 @@ const VehicleForm = () => {
                             <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
                                 <div className="flex  ">
                                     <div className="flex-initial w-[45%]">
+                                        {/* <div>{watch('customerName')}</div> */}
                                         <AutocompleteField
-                                            name="customerName" 
+                                            name="customer" 
                                             options={data?.data} 
                                             control={control}
-                                            onSelect={setCustomerId} 
-                                            isLoading={isLoading} 
+                                            isLoading={isLoading.toString()} 
                                             label="Client"
+                                            rules={{
+                                                required: 'Customer is required',
+                                                // minLength: {
+                                                //         value : 2,
+                                                //         message: 'Enter a valid name',
+                                                //         },
+                                                }}
                                         />
                                     </div>
                                     <div className=" flex-initial w-[45%] ml-[10%]">
@@ -226,6 +220,13 @@ const VehicleForm = () => {
                                                     control={control}
                                                     onSelect={setFuelTypeId} 
                                                     label="Carburant"
+                                                    rules={{
+                                                        required: 'fuel Type is required',
+                                                        // minLength: {
+                                                        //         value : 2,
+                                                        //         message: 'Enter a valid name',
+                                                        //         },
+                                                        }}
                                             />
                                         </div>
                                     {/* <div className=" flex-initial w-[45%] ml-[10%] " >

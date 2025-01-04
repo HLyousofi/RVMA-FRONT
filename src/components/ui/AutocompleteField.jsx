@@ -1,22 +1,28 @@
 import { Controller } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
 
-const AutocompleteField = ({ options, name,onSelect, label, control, isLoading=false}) => {
+const AutocompleteField = ({ options, name, label, control,rules = {}, isLoading=false}) => {
+
+
 
   return (
     
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
+        rules={rules}
+        render={({ field, fieldState: { error }}) => {
+          const { value} =field;
+          return (
           <Autocomplete
             {...field}
-            options={options}
-            getOptionLabel={(option) => option.label || ''}
-            disabled={isLoading}
+            options={options || []}
+            disabled={isLoading === "true"}
+            value={value || null}
+            getOptionLabel={(option) => option?.label || ''}
+            isOptionEqualToValue={(option, value) => option?.id === value?.id}
             onChange={(_, value) => {
               field.onChange(value);
-              onSelect(value ? value.id : null); // Return the selected item's id
             }}
             renderInput={(params) => (
               <TextField
@@ -24,10 +30,14 @@ const AutocompleteField = ({ options, name,onSelect, label, control, isLoading=f
                 label={label}
                 variant="outlined"
                 className="w-full"
+                error={!!error}
+                helperText={error?.message}
               />
+            
             )}
           />
-        )}
+          );
+        }}
       />
   );
 };
