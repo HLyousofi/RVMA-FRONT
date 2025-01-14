@@ -1,9 +1,7 @@
-import TextField from '@mui/material/TextField';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Autocomplete from '@mui/material/Autocomplete';
 import { useQuery  } from "react-query";
 import SaveButton from '../../components/ui/SaveButton';
 import ResetButton from '../../components/ui/ResetButton';
@@ -14,14 +12,11 @@ import { useForm } from "react-hook-form";
 
 
 
+
 const VehicleForm = () => {
-    // Refs for form fields
-   
-    
+
     // State variables
     const [formTitle, setFormTitle] = useState('Nouveau Vehicule')
-    const [buttonAction, setButtonAction] = useState('Ajouter');
-    const [fuelTypeId, setFuelTypeId] = useState(null);
     const [id, setId] = useState(null);
 
     const {  
@@ -30,42 +25,26 @@ const VehicleForm = () => {
         reset, watch } = useForm();
 
 
-
     const navigate = useNavigate();
     const location = useLocation();
     const {setAlert} = useAlert();
     const endPoint = 'vehicles';
     const endPointCustomer = 'customers';
-    const fuelTypes = [{id : 1, label :'Essance'}, {id : 2, label :'diesel'}, {id : 3, label :'Hybrid'}, {id : 4, label :'electric'}];
+    const endPointFuelTypes = "fueltypes";
 
-    const vehicle = {
-        customerId : "",
-        customerName : "",
-        brand : "",
-        model : "", 
-        plateNumber : "", 
-        fuelType : "",
-        chassisNumber : ""
+
+
+
+    const fetchCustomersName  =  async () =>  {
+        const response = await api.get(`/${endPointCustomer}?pageSize=all`);
+        return response.data;
     }
-    
-
-
-    const fetchCustomersName  =  async () =>  await api.get(`/${endPointCustomer}?pageSize=all`);
-
-     // Use React Query to fetch customer  and manage the state
-    const result = useQuery({
-        queryKey: ['customersName'],
-        queryFn: () => fetchCustomersName(),
-        keepPreviousData : true
-    });
-    const { data, isLoading, isError } = result;
-
-    function getIdByLabel(data, label) {
-        const item = data.find(obj => obj.label === label);
-        return item ? item.id : null;
+    const fetchFuelTypes  =  async () =>{  
+        const response = await api.get(`/${endPointFuelTypes}`);
+        return response.data;
     }
-    
-  
+
+
     useEffect(() => {
         
         // Populate form fields if editing an existing customer
@@ -75,13 +54,14 @@ const VehicleForm = () => {
                 setId(location.state?.id);
                 // setCustomerId(location.state?.customerId);
                 setFormTitle('Id Vehicule :'+ location.state?.id);
+              
                 // console.log(location.state);
                 const vehicleData = {
                     customer : {id : location.state?.customerId, label :location.state?.customerName},
                     brand : location.state?.brand || '',
                     model: location.state?.model || '',
                     plateNumber : location.state?.plateNumber || '',
-                    fuelType :  location.state?.fuelType || ''
+                    fuelType :  {id : location.state?.fuelTypeId , label : location.state?.fuelType}
                 }
                 reset(vehicleData);
             }
@@ -89,6 +69,24 @@ const VehicleForm = () => {
 
         fetchDataForm();
     },[])
+
+    
+
+     // Fetch customer data
+     const { data: customers, isLoading: isLoadingCustomers, isError: isErrorCustomers } = useQuery({
+        queryKey: ['customersName'],
+        queryFn: fetchCustomersName, // Pass the function reference
+        keepPreviousData: true,
+    });
+
+    // Fetch fuel types data
+    const { data: fuelTypes, isLoading: isLoadingFuelTypes, isError: isErrorFuelTypes } = useQuery({
+        queryKey: ['fuelTypes'],
+        queryFn: fetchFuelTypes, // Pass the function reference
+        keepPreviousData: true,
+    });
+    
+   
 
 
 
@@ -105,7 +103,7 @@ const VehicleForm = () => {
             plateNumber : data?.plateNumber, 
             fuelType : data?.fuelType.id,
         };
-    
+        
     
 
         try {
@@ -151,9 +149,9 @@ const VehicleForm = () => {
                                         {/* <div>{watch('customerName')}</div> */}
                                         <AutocompleteField
                                             name="customer" 
-                                            options={data?.data} 
+                                            options={customers} 
                                             control={control}
-                                            isLoading={isLoading.toString()} 
+                                            isLoading={isLoadingCustomers.toString()} 
                                             label="Client"
                                             rules={{
                                                 required: 'Customer is required',
@@ -216,9 +214,10 @@ const VehicleForm = () => {
                                         <div className=" flex-initial w-[45%] ">
                                             <AutocompleteField 
                                                     name="fuelType"
-                                                    options={fuelTypes} 
+                                                    options={fuelTypes?.data} 
                                                     control={control}
-                                                    onSelect={setFuelTypeId} 
+                                                    // onSelect={setFuelTypeId} 
+                                                    isLoading={isLoadingFuelTypes.toString()} 
                                                     label="Carburant"
                                                     rules={{
                                                         required: 'fuel Type is required',

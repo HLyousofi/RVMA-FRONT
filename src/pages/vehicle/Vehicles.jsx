@@ -3,11 +3,11 @@ import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useMutation} from "react-query";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import useGetVehicles,{useDeleteVehicle} from "../../services/VehicleService";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
 import {
@@ -91,8 +91,6 @@ function Vehicles() {
       ];
 
 
-
-
     // Handle the click event for editing a customer
     const handlEditClick = (vehicle) => {
        
@@ -136,7 +134,7 @@ function Vehicles() {
      // Render the main content with the DataGrid
     else return (
         
-      
+     
 
             <section >
                     <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] rounded-xl ">
