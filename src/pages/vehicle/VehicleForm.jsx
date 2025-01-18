@@ -31,6 +31,7 @@ const VehicleForm = () => {
     const endPoint = 'vehicles';
     const endPointCustomer = 'customers';
     const endPointFuelTypes = "fueltypes";
+    const endPointCarBrands = "carBrands";
 
 
 
@@ -43,29 +44,33 @@ const VehicleForm = () => {
         const response = await api.get(`/${endPointFuelTypes}`);
         return response.data;
     }
+    const fetchCarBrands  =  async () =>{  
+        const response = await api.get(`/${endPointCarBrands}`);
+        return response.data;
+    }
+
+
+     // Populate form fields if editing an existing customer
+     const fetchDataForm =  () => { 
+        if(location.state){
+            // setButtonAction('Modifier');;
+            setId(location.state?.id);
+            // setCustomerId(location.state?.customerId);
+            setFormTitle('Id Vehicule :'+ location.state?.id);
+            // console.log(location.state);
+            const vehicleData = {
+                customer : {id : location.state?.customerId, label :location.state?.customerName},
+                brand : location.state?.brand ,
+                model: location.state?.model || '',
+                plateNumber : location.state?.plateNumber || '',
+                fuelType : location.state?.fuelType
+            }
+            reset(vehicleData);
+        }
+    }
 
 
     useEffect(() => {
-        
-        // Populate form fields if editing an existing customer
-        const fetchDataForm =  () => { 
-            if(location.state){
-                setButtonAction('Modifier');;
-                setId(location.state?.id);
-                // setCustomerId(location.state?.customerId);
-                setFormTitle('Id Vehicule :'+ location.state?.id);
-              
-                // console.log(location.state);
-                const vehicleData = {
-                    customer : {id : location.state?.customerId, label :location.state?.customerName},
-                    brand : location.state?.brand || '',
-                    model: location.state?.model || '',
-                    plateNumber : location.state?.plateNumber || '',
-                    fuelType :  {id : location.state?.fuelTypeId , label : location.state?.fuelType}
-                }
-                reset(vehicleData);
-            }
-        }
 
         fetchDataForm();
     },[])
@@ -85,6 +90,12 @@ const VehicleForm = () => {
         queryFn: fetchFuelTypes, // Pass the function reference
         keepPreviousData: true,
     });
+
+    const { data: carBrands, isLoading: isLoadingCarBrands, isError: isErrorCarBrands } = useQuery({
+        queryKey: ['carBrands'],
+        queryFn: fetchCarBrands, // Pass the function reference
+        keepPreviousData: true,
+    });
     
    
 
@@ -98,7 +109,7 @@ const VehicleForm = () => {
        
         const vehicle = {
             customerId : data?.customer?.id,
-            brand : data?.brand,
+            brand : data?.brand.id,
             model : data?.model, 
             plateNumber : data?.plateNumber, 
             fuelType : data?.fuelType.id,
@@ -163,7 +174,7 @@ const VehicleForm = () => {
                                         />
                                     </div>
                                     <div className=" flex-initial w-[45%] ml-[10%]">
-                                        <InputField 
+                                        {/* <InputField 
                                             name="brand"
                                             label="Marque"
                                             type="text"
@@ -175,6 +186,20 @@ const VehicleForm = () => {
                                                             message: 'Enter a valid name',
                                                             },
                                                     }}
+                                        /> */}
+                                         <AutocompleteField
+                                            name="brand" 
+                                            options={carBrands?.data} 
+                                            control={control}
+                                            isLoading={isLoadingCarBrands.toString()} 
+                                            label="Marque"
+                                            rules={{
+                                                required: ' Brand is required',
+                                                // minLength: {
+                                                //         value : 2,
+                                                //         message: 'Enter a valid name',
+                                                //         },
+                                                }}
                                         />
                                     </div>
                                 </div>

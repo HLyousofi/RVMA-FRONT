@@ -41,7 +41,11 @@ function Vehicles() {
           field: 'brand',
           headerName: 'Marque',
           width: 200,
-          editable: false
+          editable: false,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.brand?.label || "N/A";
+          },
         },
         {
           field: 'model',
@@ -71,6 +75,10 @@ function Vehicles() {
             sortable: true,
             width: 200,
             editable: false,
+            renderCell: (params) => {
+              // Access the nested `label` field
+              return params.row.fuelType?.label || "N/A";
+            },
           },
           {
             field: 'customerName',
