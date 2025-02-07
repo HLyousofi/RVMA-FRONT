@@ -24,7 +24,7 @@ const ThemeButton = () => {
     },[theme])
 
     return (
-        <button type="button" onClick={handlChange} className="hs-dark-mode-active:hidden block hs-dark-mode group flex items-center text-gray-400 hover:text-blue-600 font-medium dark:text-gray-400 dark:hover:text-gray-500" data-hs-theme-click-value="dark">
+        <button type="button" onClick={handlChange} className="hs-dark-mode-active:hidden  hs-dark-mode group flex items-center text-gray-400 hover:text-blue-600 font-medium dark:text-gray-400 dark:hover:text-gray-500" data-hs-theme-click-value="dark">
             {themeIcon}
         </button>
     )
