@@ -1,7 +1,4 @@
 
-
-import React from 'react';
-
 const UserTable = ({ users }) => {
   return (
     <div className="overflow-x-auto">
