@@ -29,8 +29,8 @@ export default function Layout() {
                 <PopUp />
                 <AlertComponent />
                 <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-                <Navbar isOpen={isSidebarOpen}no toggleSidebar={toggleSidebar} />
-                <main className={` h-full xl:w-10/12 mb-12   xl:mb-0 px-4 ${ isSidebarOpen ? "sm:ml-64 w-full" : "sm:ml-0 min-w-full"}  mt-24`} >
+                <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+                <main className={` h-full   mb-12 w-[100%] px-1 ${ isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "}  mt-24`} >
                     <Outlet />
                 </main>
             </div>

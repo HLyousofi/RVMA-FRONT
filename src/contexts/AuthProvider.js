@@ -1,15 +1,11 @@
 import { createContext, useState } from "react";
 
-
-
-
 export const AuthContext =createContext({
     user : null,
     apiToken : null,
     setUser : () => {},
     setApiToken : () => {}
 });
-
 
 export const AuthProvider = ({ children }) => {
     const [apiToken, _setApiToken] = useState(localStorage.getItem('apiToken'));
@@ -23,7 +19,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('apiToken')
         }
     }
-
 
     return (
         <AuthContext.Provider value={{ user, apiToken, setUser, setApiToken}} >

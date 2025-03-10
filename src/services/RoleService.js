@@ -4,11 +4,6 @@ import { useQuery, useMutation } from 'react-query';
 
 
 const endPointRoles = '/roles';
-
-
-
-
-
 const useGetRoles = (page) => {
 
     return useQuery({

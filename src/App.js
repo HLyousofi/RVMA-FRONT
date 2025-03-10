@@ -12,6 +12,8 @@ import VehicleForm from './pages/vehicle/VehicleForm';
 import ErrorPage from './pages/page-error/page-error';
 import OrderForm from './pages/order/OrderForm';
 import Quotes from './pages/quote/Quotes';
+import Products from './pages/product/Products';
+import ProductForm from './pages/product/ProductForm';
 import QuoteForm from './pages/quote/QuoteForm';
 import AdminLayout from './layout/AdminLayout';
 import Users from './pages/admin/users/Users';
@@ -53,6 +55,8 @@ function App() {
                     <Route path="/invoices" element={<Invoices />} />
                     <Route path="/quotes" element={<Quotes />} />
                     <Route path="/quotes/quoteform" element={<QuoteForm />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/products/productForm" element={<ProductForm />} />
                     <Route path="/logout" element={<LogOut />} />
                 </Route>
             </Route>

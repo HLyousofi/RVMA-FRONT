@@ -7,7 +7,9 @@ const InputField = ({
   name, 
   label, 
   control, 
+  multiline = false,
   defaultValue = '', 
+  disabled=false,
   rules = {}, 
   type = 'text', 
   ...rest 
@@ -23,6 +25,8 @@ const InputField = ({
           {...field}
           label={label}
           type={type}
+          disabled={disabled}
+          multiline={multiline}
           variant="outlined"
           fullWidth
           error={!!error}
