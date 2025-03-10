@@ -6,7 +6,7 @@ import useAlert from "../../hooks/useAlert";
 import { useMutation} from "react-query";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import useGetVehicles,{useDeleteVehicle} from "../../services/VehicleService";
+import useGetProducts,{useDeleteProduct} from "../../services/ProductService";
 import { useNavigate } from "react-router-dom";
 import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
@@ -19,68 +19,79 @@ import {
 
 
 // Define the functional component Vehicles
-function Vehicles() {
+function Products() {
     // Initialize state and variables
     const navigate = useNavigate();
     const {setAlert} = useAlert();
-    const endPoint = 'vehicles';
+    const endPoint = 'products';
     const [page, setPage] = useState({page : 1, pageSize : 15});
-    const endPointEdit ='vehicleform';
+    const endPointEdit ='productform';
     const apiRef = useGridApiRef();
-    const { data, isLoading, isError } = useGetVehicles(page);
-    const {mutateAsync : deleteVehicle, isError : deleteError} = useDeleteVehicle();
+    const { data, isLoading, isError } = useGetProducts(page);
+    const {mutateAsync : deleteProduct, isError : deleteError} = useDeleteProduct();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     // Define columns for the DataGrid
-    const vehicleColumns = [
-        {
-          field: 'brand',
-          headerName: 'Marque',
-          flex: 1,
-          editable: false,
-          renderCell: (params) => {
-            // Access the nested `label` field
-            return params.row.brand?.label || "N/A";
-          },
-        },
-        {
-          field: 'model',
-          headerName: 'Model',
-          type: 'text',
-           flex: 1,
-          editable: false,
-        },
-        {
-          field: 'plateNumber',
-          headerName: 'Matricule',
-          sortable: true,
-          editable: false,
-           flex: 1,
-    
-        },
-        // {
-        //   field: 'chassisNumber',
-        //   headerName: 'Numero de chassis',//affichage de numero de chassis
-        //   sortable: false,
-        //    flex: 1,
-    
-        // },
-        {
-            field: 'fuelType',
-            headerName: 'Carburant',
-            sortable: true,
-             flex: 1,
+    const productColumns = [
+          {
+            field: 'name',
+            headerName: 'Nom',
+            flex: 0.5,
             editable: false,
-            renderCell: (params) => {
-              // Access the nested `label` field
-              return params.row.fuelType?.label || "N/A";
-            },
           },
           {
-            field: 'customerName',
-            headerName: 'Client',
-             flex: 1,
+            field: 'brand',
+            headerName: 'Marque',
+            flex: 0.5,
+            editable: false,
+          },
+          {
+              field: 'category',
+              headerName: 'Categorie',
+              flex: 0.5,
+                renderCell: (params) => {
+                // Access the nested `label` field
+                return params.row.category?.label || "N/A";
+              },
+          },
+          {
+            field: 'oemReference',
+            headerName: 'Ref Marque ',
+            type: 'text',
+            flex: 0.5,
+            editable: false,
+          },
+          {
+            field: 'manufacturerReference',
+            headerName: 'Ref Fabriquant  ',
+            type: 'text',
+            flex: 0.5,
+            editable: false,
+          },
+          {
+            field: 'purchasePrice',
+            headerName: 'Achat',
+            flex: 0.5,
             editable: true,
           },
+          {
+            field: 'sellingPrice',
+            headerName: 'Vente',
+            flex: 0.5,
+            editable: true,
+          },
+          // {
+          //   field: 'totalStock',
+          //   headerName: 'Stock',
+          //   sortable: true,
+          //   flex: 0.5,
+          //   editable: false,
+          // },
+          // {
+          //   field: 'description',
+          //   headerName: 'Description',
+          //   flex: 1,
+          //   editable: true,
+          // },
           {
             field: 'actions',
             headerName: 'Actions',
@@ -110,7 +121,7 @@ function Vehicles() {
             setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
             setNoAction(() => () => {});
             setYesAction(() => () => { 
-                                         deleteVehicle(id, {
+                                         deleteProduct(id, {
                                             onSuccess:  () => {
                                                 setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
                                                 apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
@@ -144,7 +155,7 @@ function Vehicles() {
                         <div className="rounded-t mb-0 px-4 py-3 border-0">
                             <div className="flex flex-wrap items-center">
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                                <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Vehicules</h3>
+                                <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Produits</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
                                     <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
@@ -157,7 +168,7 @@ function Vehicles() {
                                     customerId: false,
                                   }}
                                 paginationMode="server"
-                                columns={vehicleColumns}
+                                columns={productColumns}
                                 rows={data?.data?.data}
                                 initialState={{
                                     pagination: {
@@ -180,4 +191,4 @@ function Vehicles() {
 
 }
 
-export default Vehicles;
+export default Products;

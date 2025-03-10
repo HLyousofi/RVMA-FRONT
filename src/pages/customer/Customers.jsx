@@ -33,21 +33,21 @@ function Customers() {
         {
           field: 'name',
           headerName: 'Name',
-          width: 200,
+          flex: 1,
           editable: false,
           sortable: true
         },
         {
           field: 'adress',
           headerName: 'Adresse',
-          width: 400,
+          flex: 1.5,
           editable: false,
         },
         {
           field: 'email',
           headerName: 'Email',
           type: 'email',
-          width: 250,
+          flex: 1,
           editable: false,
         },
         {
@@ -55,14 +55,14 @@ function Customers() {
           headerName: 'Telephone',
           description: 'This column has a value getter and is not sortable.',
           sortable: false,
-          width: 160,
+          flex: 1,
     
         },
         {
             field: 'actions',
             headerName: 'Actions',
             type: 'actions',
-            width: 100,
+            flex: 1,
             getActions: (params) => [
               <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)} />,
               <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handleDeleteClick(params.row)} />

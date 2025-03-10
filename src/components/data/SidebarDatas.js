@@ -38,7 +38,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
     {
         title : "Produit",
         icon : <StoreIcon />,
-        link : "product"
+        link : "products"
     },
     {
         title : "Fournisseur",

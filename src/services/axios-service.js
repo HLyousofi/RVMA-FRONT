@@ -19,10 +19,12 @@ axiosClient.interceptors.response.use((response) => {
 }, (error) => {
     const {response} = error;
     if(response && response.status >= 500){
-        localStorage.clear();
-       const  params = {errorCode : response.status, errorMessage : response.statusText};
-       const queryString = new URLSearchParams(params).toString();
-       window.location.replace(`/errorPage?${queryString}`);
+    //     localStorage.clear();
+    //    const  params = {errorCode : response.status, errorMessage : response.statusText};
+    //    const queryString = new URLSearchParams(params).toString();
+    console.log(response);
+    
+    //    window.location.replace(`/errorPage?${queryString}`);
     }else if(response.status == 401){
         console.error(response);
         window.location.replace("/");
