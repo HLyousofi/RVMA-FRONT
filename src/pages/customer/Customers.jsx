@@ -92,7 +92,7 @@ function Customers() {
         setMessage('Êtes-vous sûr de bien vouloir supprimer ce Client?')
         setYesAction(() =>  () => {
                                 try {
-                                     deleteCustomer(id,{
+                                     deleteCustomer({id},{
                                         onSuccess : () => {
                                             apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
                                             setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});

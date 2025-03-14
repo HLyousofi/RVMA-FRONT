@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQuery  } from "react-query";
 import SaveButton from '../../components/ui/SaveButton';
 import ResetButton from '../../components/ui/ResetButton';
 import InputField from '../../components/ui/InpuField';
 import AutocompleteField from '../../components/ui/AutocompleteField';
 import { useForm } from "react-hook-form";
-
+import { usePostVehicle, useUpdateVehicle } from '../../services/VehicleService';
+import { useQuery, useQueryClient  } from "react-query";
 
 
 
@@ -18,6 +18,11 @@ const VehicleForm = () => {
     // State variables
     const [formTitle, setFormTitle] = useState('Nouveau Vehicule')
     const [id, setId] = useState(null);
+
+    const {mutateAsync : addVehicle} = usePostVehicle();
+    const {mutateAsync : updateVehicle} = useUpdateVehicle();
+    const queryClient = useQueryClient();
+
 
     const {  
         handleSubmit,
@@ -114,39 +119,58 @@ const VehicleForm = () => {
             plateNumber : data?.plateNumber, 
             fuelType : data?.fuelType.id,
         };
-        
-    
-
-        try {
             // Make API request based on whether it's a new vehicle or an update
             if(id != null){
-                    response = await api.patch(`/${endPoint}/${id}`, vehicle);
+                try{
+                    await updateVehicle({id, vehicle},{
+                                                        onSuccess : async () => {
+                                                            // handleCloseDialog();
+                                                            navigate('/vehicles');
+                                                            queryClient.invalidateQueries(["vehicles"]); 
+                                                            setAlert({
+                                                                        active  : true, 
+                                                                        type    : "success", 
+                                                                        message : 'vehicle Modifier avec Succes !'
+                                                                    });
+                                                        },onError : async (error) => {
+                                                            setAlert({
+                                                                        active  : true, 
+                                                                        type    : "error", 
+                                                                        message : error.response?.data?.message
+                                                                    });
+                            }
+                        }
+            );
+                    }catch(error){
+                    setAlert({
+                                active : true, 
+                                type : "error", 
+                                message : error.response?.data?.message
+                            });
+                    }
             }else {
-                    response = await api.post(`/${endPoint}`, vehicle);
+                    try{
+                        await addVehicle({ vehicle},{
+                                                            onSuccess : async () => {
+                                                                queryClient.invalidateQueries(["vehicles"]); 
+                                                                // handleCloseDialog();
+                                                                navigate('/vehicles');
+                                                                setAlert({
+                                                                            active  : true, 
+                                                                            type    : "success", 
+                                                                            message : 'vehicle Ajouter avec Succes !'
+                                                                        });
+                                                            }
+        
+                        });
+                        }catch(error){
+                        setAlert({
+                                    active : true, 
+                                    type : "error", 
+                                    message : error.response?.data?.message
+                                });
+                        }
             }  
-            // Check response status and navigate accordingly
-            if(response.status === 201){ 
-                navigate(`/${endPoint}`);
-                setAlert({
-                    active : true, 
-                    type : "success", 
-                    message : 'Voiture Ajouté avec Succes !'});
-            }if(response.status === 200){ 
-                navigate(`/${endPoint}`);
-                setAlert({
-                    active : true, 
-                    type : "success", 
-                    message : 'voiture Modifier avec Succes !'
-                });
-            }
-        }catch(error){
-            setAlert({
-                active : true, 
-                type : "error", 
-                message : error.message
-            });
-                
-        }
 }
 
 

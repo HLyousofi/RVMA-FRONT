@@ -6,7 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 
 
-const SaveButton = ({link }) => {
+const SaveButton = () => {
 
     return (
         <Button type='submit' variant="contained" startIcon={<SaveIcon />}>Enregistrer</Button>

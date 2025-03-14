@@ -33,7 +33,6 @@ const CustomerForm = () => {
     useEffect(() => {
         // Populate form fields if editing an existing customer
         if(location.state){
-            console.log(location.state);
             setButtonAction('Modifier');
             setId(location.state?.id);
             setFormTitle('Id Client :'+ location.state?.id);
@@ -74,8 +73,7 @@ const CustomerForm = () => {
                 
         if(location.state){
                 try{
-                
-                await updateCustomer({id, customer},{
+                    await updateCustomer({id, customer},{
                                                     onSuccess : async () => {
                                                         navigate('/customers');
                                                         setAlert({
@@ -87,17 +85,16 @@ const CustomerForm = () => {
 
                 });
                 }catch(error){
-                console.error(error);
                 setAlert({
                             active : true, 
                             type : "error", 
-                            message : error.message
+                            message : error.response?.data?.message
                         });
                 }
         }else {
 
             try{
-                await addCustomer(customer,{
+                await addCustomer({customer},{
                     onSuccess : async () => {
                                                     navigate('/customers');
                                                     setAlert({
@@ -112,9 +109,8 @@ const CustomerForm = () => {
                             setAlert({
                                 active  : true, 
                                 type    : "error", 
-                                message : error.message
+                                message : error.response?.data?.message
                             });
-                                console.error(error);
             }
         }  
     }
