@@ -1,63 +1,49 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/axios-service';
 import useAlert from '../../hooks/useAlert';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useQuery  } from "react-query";
+import { useQuery, useQueryClient  } from "react-query";
 import SaveButton from '../../components/ui/SaveButton';
 import ResetButton from '../../components/ui/ResetButton';
 import InputField from '../../components/ui/InpuField';
 import AutocompleteField from '../../components/ui/AutocompleteField';
 import { useForm } from "react-hook-form";
+import { usePostProduct, useUpdateProduct } from '../../services/ProductService';
 
 
-
-
-
-const ProductForm = () => {
+const ProductForm = ({product, handleCloseDialog}) => {
 
     // State variables
-    const [formTitle, setFormTitle] = useState('Nouveau Produite')
-    const [id, setId] = useState(null);
+    const [formTitle, setFormTitle] = useState('Nouveau Produite');
+    const [productId,setProductId] =useState(null);
 
+    const {mutateAsync : addProduct} = usePostProduct();
+    const {mutateAsync : updateProduct} = useUpdateProduct();
     const {  
         handleSubmit,
         control,
         reset, watch } = useForm();
 
-
-    const navigate = useNavigate();
-    const location = useLocation();
+    const queryClient = useQueryClient();
     const {setAlert} = useAlert();
-    const endPoint = 'products';
     const endPointCategories = 'categories';
-    // const endPointFuelTypes = "fueltypes";
-    // const endPointCarBrands = "carBrands";
-
-
-
-
     const fetchCategoriesName  =  async () =>  {
         const response = await api.get(`/${endPointCategories}?pageSize=all`);
         return response.data;
     }
-   
-
-
      // Populate form fields if editing an existing customer
      const fetchDataForm =  () => { 
-        console.log(location.state);
-        if(location.state){
-            // setButtonAction('Modifier');;
-            setId(location.state?.id);
-            // setCustomerId(location.state?.customerId);
-            setFormTitle('Id Product :'+ location.state?.id);
-            // console.log(location.state);
+        if(product.id){
+            setProductId(product.id);
+            setFormTitle('Id Product :'+ product?.id);
             const ProductData = {
-                name : location.state?.name,
-                // referance: location.state?.referance,
-                category : location.state?.category,
-                description : location.state?.description || '',
-                fuelType : location.state?.fuelType
+                name : product?.name,
+                brand: product?.brand,
+                model : product?.model,
+                category : product?.category,
+                oemReference : product?.oemReference,
+                manufacturerReference : product?.manufacturerReference,
+                description : product?.description,
+                fuelType : product?.fuelType
             }
             reset(ProductData);
         }
@@ -68,39 +54,15 @@ const ProductForm = () => {
 
         fetchDataForm();
     },[])
-
-    
-
      // Fetch customer data
      const { data: Categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useQuery({
         queryKey: ['CategoriesName'],
         queryFn: fetchCategoriesName, // Pass the function reference
         keepPreviousData: true,
     });
-
-    // // Fetch fuel types data
-    // const { data: fuelTypes, isLoading: isLoadingFuelTypes, isError: isErrorFuelTypes } = useQuery({
-    //     queryKey: ['fuelTypes'],
-    //     queryFn: fetchFuelTypes, // Pass the function reference
-    //     keepPreviousData: true,
-    // });
-
-    // const { data: carBrands, isLoading: isLoadingCarBrands, isError: isErrorCarBrands } = useQuery({
-    //     queryKey: ['carBrands'],
-    //     queryFn: fetchCarBrands, // Pass the function reference
-    //     keepPreviousData: true,
-    // });
-    
-   
-
-
-
     const onSubmit = async (data) => {
         // Validation checks before submitting the form
-       
-        
-        let response;
-        const product = {
+        const productData = {
             name : data?.name,
             categoryId : data?.category?.id,
             brand : data?.brand,
@@ -109,40 +71,57 @@ const ProductForm = () => {
             manufacturerReference : data?.manufacturerReference,
             description : data?.description, 
         };
-    
-
-        try {
-            // Make API request based on whether it's a new vehicle or an update
-            if(id != null){
-                    response = await api.patch(`/${endPoint}/${id}`, product);
+  
+            if(productId != null){
+                    try{
+                        await updateProduct({productId, productData},{
+                                                            onSuccess : async () => {
+                                                                handleCloseDialog();
+                                                                queryClient.invalidateQueries(["products"]); 
+                                                                setAlert({
+                                                                            active  : true, 
+                                                                            type    : "success", 
+                                                                            message : 'Produit Modifier avec Succes !'
+                                                                        });
+                                                            },onError : async (error) => {
+                                                                setAlert({
+                                                                            active  : true, 
+                                                                            type    : "error", 
+                                                                            message : error.response?.data?.message
+                                                                        });
+                                }
+                            }
+                );
+                        }catch(error){
+                        setAlert({
+                                    active : true, 
+                                    type : "error", 
+                                    message : error.response?.data?.message
+                                });
+                        }
             }else {
-                    response = await api.post(`/${endPoint}`, product);
+                try{
+                    await addProduct({ productData},{
+                                                        onSuccess : async () => {
+                                                            queryClient.invalidateQueries(["products"]); 
+                                                            handleCloseDialog();
+                                                            setAlert({
+                                                                        active  : true, 
+                                                                        type    : "success", 
+                                                                        message : 'Produit Ajouter avec Succes !'
+                                                                    });
+                                                        }
+    
+                    });
+                    }catch(error){
+                    setAlert({
+                                active : true, 
+                                type : "error", 
+                                message : error.response?.data?.message
+                            });
+                    }
+                    
             }  
-            // Check response status and navigate accordingly
-            if(response.status === 201){ 
-                navigate(`/${endPoint}`);
-                console.log(response)
-                setAlert({
-                    active : true, 
-                    type : "success", 
-                    message : 'Produite Ajouté avec Succes !'});
-            }if(response.status === 200){ 
-                navigate(`/${endPoint}`);
-                
-                setAlert({
-                    active : true, 
-                    type : "success", 
-                    message : 'Produite Modifier avec Succes !'
-                });
-            }
-        }catch(error){
-            setAlert({
-                active : true, 
-                type : "error", 
-                message : error?.response?.data?.message
-            });
-                
-        }
 }
 
 
@@ -151,7 +130,7 @@ const ProductForm = () => {
                         <div className="px-6 py-6 lg:px-8">
                             <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300">{ formTitle }</h3>
                             <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
-                                <div className="grid gap-6 grid-cols-2 md:grid-cols-3 ">
+                                <div className="grid gap-6 grid-cols-2 md:grid-cols-2 ">
                                         <InputField 
                                                 name="name"
                                                 label="Nom"
@@ -293,8 +272,8 @@ const ProductForm = () => {
                                     <SaveButton />
                                 </div>
                             </form>
-                        </div>
-                    </div>
+                         </div>
+                     </div>
     )
 };
 

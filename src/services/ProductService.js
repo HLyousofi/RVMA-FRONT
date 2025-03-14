@@ -22,29 +22,48 @@ export default useGetProducts;
 
 
 export const usePostProduct = () => {
-    
-
     return useMutation({
-        mutationFn : (product) => { return   api.post(endPointProducts, product);}
+        mutationFn: async ({ productData }) => {
+            try {
+                const response = await api.post(endPointProducts, productData);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
 
     });
-
 }
 
 export const useUpdateProduct = () => {
     
 
     return useMutation({
-        mutationFn : ({id, product}) => {    api.patch(`${endPointProducts}\\${id}`, product).then((res) => {return res});}
-
+        mutationFn: async ({ productId, productData }) => {
+            try {
+                const response = await api.patch(`${endPointProducts}/${productId}`, productData);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
     });
-
 }
 
 
 export const useDeleteProduct = () => {
 
     return useMutation({
-        mutationFn : async   (id)  => { return  await api.delete(`${endPointProducts}\\${id}`);
+        mutationFn : async   (id)  => { 
+            try {
+                const response =  await api.delete(`${endPointProducts}\\${id}`);
+                return response.data;
+            }catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+
+            }
     }}) 
 }

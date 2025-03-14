@@ -110,7 +110,7 @@ function Vehicles() {
             setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
             setNoAction(() => () => {});
             setYesAction(() => () => { 
-                                         deleteVehicle(id, {
+                                         deleteVehicle({id}, {
                                             onSuccess:  () => {
                                                 setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
                                                 apiRef.current.updateRows([{ id: id, _action: 'delete' }]);

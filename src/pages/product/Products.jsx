@@ -5,23 +5,24 @@ import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import { useMutation} from "react-query";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import useGetProducts,{useDeleteProduct} from "../../services/ProductService";
 import { useNavigate } from "react-router-dom";
-import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
+import  Dialog  from '../../components/Dialog';
+import useDialog from "../../hooks/useDialog";
 import {
     DataGrid,
     GridActionsCellItem,
     useGridApiRef
   } from '@mui/x-data-grid';
+import ProductForm from "./ProductForm";
+import { Button } from "@mui/material";
 
 
 
 // Define the functional component Vehicles
 function Products() {
     // Initialize state and variables
-    const navigate = useNavigate();
     const {setAlert} = useAlert();
     const endPoint = 'products';
     const [page, setPage] = useState({page : 1, pageSize : 15});
@@ -68,17 +69,24 @@ function Products() {
             editable: false,
           },
           {
-            field: 'purchasePrice',
-            headerName: 'Achat',
+            field: 'model',
+            headerName: 'Model ',
+            type: 'text',
             flex: 0.5,
-            editable: true,
+            editable: false,
           },
-          {
-            field: 'sellingPrice',
-            headerName: 'Vente',
-            flex: 0.5,
-            editable: true,
-          },
+          // {
+          //   field: 'purchasePrice',
+          //   headerName: 'Achat',
+          //   flex: 0.5,
+          //   editable: true,
+          // },
+          // {
+          //   field: 'sellingPrice',
+          //   headerName: 'Vente',
+          //   flex: 0.5,
+          //   editable: true,
+          // },
           // {
           //   field: 'totalStock',
           //   headerName: 'Stock',
@@ -104,15 +112,26 @@ function Products() {
           }
       ];
 
+      const [product, setProduct] = useState({});
+      const { isOpen, openDialog, closeDialog } = useDialog();
+
+
 
     // Handle the click event for editing a customer
-    const handlEditClick = (vehicle) => {
-       
-        navigate(`/${endPoint}/${endPointEdit}`, {state : vehicle});
+    const handlEditClick = (product) => {
+      setProduct(product);
+      openDialog();
+        // navigate(`/${endPoint}/${endPointEdit}`, {state : vehicle});
+        
+    }
+
+    const closeDialogForm = () => {
+      setProduct({});
+      closeDialog();
     }
 
     const mutation = useMutation((id) => {
-        return api.delete(`/${endPoint}/${id}`);
+        return  api.delete(`/${endPoint}/${id}`);
     });
 
 
@@ -120,21 +139,21 @@ function Products() {
             openPopup();
             setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
             setNoAction(() => () => {});
-            setYesAction(() => () => { 
-                                         deleteProduct(id, {
-                                            onSuccess:  () => {
-                                                setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
-                                                apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
-                                            },
-                                            onError: (error) => {
-                                                // Handle error, like showing an error message
-                                                if(error.response.status){
-                                                    console.log(error)
-                                                setAlert({active : true, type : "error" ,message : error.message});
-                                                }
-                                            },
-                                        
-                                        });
+            setYesAction(() => async () => { 
+              try {
+                await deleteProduct(id); // Utilisation correcte de mutateAsync
+        
+                setAlert({ active: true, type: 'success', message: 'Élément supprimé avec succès !' }); 
+                apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+        
+              } catch (error) {
+                console.error("Erreur suppression :", error.response?.data || error);
+                setAlert({ 
+                    active: true, 
+                    type: "error", 
+                    message: error.response?.data?.message || "Erreur lors de la suppression !" 
+                });
+            }
             })  
         }
 
@@ -147,9 +166,13 @@ function Products() {
     }
      // Render the main content with the DataGrid
     else return (
-        
-     
-
+      <>
+            <Dialog
+              isOpen={isOpen} 
+              onClose={closeDialogForm} 
+            >
+             <ProductForm  product={product} handleCloseDialog={closeDialog}/>
+            </Dialog>
             <section >
                     <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] rounded-xl ">
                         <div className="rounded-t mb-0 px-4 py-3 border-0">
@@ -158,7 +181,7 @@ function Products() {
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Produits</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
+                                    <Button  variant="contained" color="success" onClick={openDialog} >Nouveau</Button>
                                 </div>
                             </div>
                         </div>
@@ -186,6 +209,7 @@ function Products() {
                         </div>
                     </div>
             </section>
+      </>
                 
     );
 

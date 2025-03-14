@@ -22,29 +22,47 @@ export default useGetCustomers;
 
 
 export const usePostCustomer = () => {
-    
-
     return useMutation({
-        mutationFn : async (customer) => { return await api.post(endPointCustomers, customer);}
+        mutationFn: async ({ customer  }) => {
+            try {
+                const response = await api.post(endPointCustomers, customer);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
 
     });
 
 }
 
 export const useUpdateCustomer = () => {
-    
-
     return useMutation({
-        mutationFn : async  ({id, customer}) => { return   await api.patch(`${endPointCustomers}\\${id}`, customer);}
-
+        mutationFn: async ({ customer, id }) => {
+            try {
+                const response =  await api.patch(`${endPointCustomers}\\${id}`, customer);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
     });
 
 }
 
 
 export const useDeleteCustomer = () => {
-
     return useMutation({
-        mutationFn : async (id) => {return await api.delete(`${endPointCustomers}\\${id}`)}
-    })
+        mutationFn : async   ({id})  => { 
+            try {
+                const response =  await api.delete(`${endPointCustomers}\\${id}`);
+                return response.data;
+            }catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+
+            }
+    }}) 
 }
