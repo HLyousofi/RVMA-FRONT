@@ -11,9 +11,11 @@ const InputField = ({
   defaultValue = '', 
   disabled=false,
   rules = {}, 
-  type = 'text', 
+  variant = 'outlined',
+  type = 'text',
   ...rest 
 }) => {
+  const align = (type === 'number') ? 'right' : 'left';
   return (
     <Controller
       name={name}
@@ -27,11 +29,11 @@ const InputField = ({
           type={type}
           disabled={disabled}
           multiline={multiline}
-          variant="outlined"
+          variant={variant}
           fullWidth
           error={!!error}
           helperText={error?.message}
-          className="mb-4"
+          sx={{ input: { textAlign: align } }}
           {...rest}
         />
       )}

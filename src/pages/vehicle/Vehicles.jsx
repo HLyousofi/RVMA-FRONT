@@ -27,7 +27,7 @@ function Vehicles() {
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='vehicleform';
     const apiRef = useGridApiRef();
-    const { data, isLoading, isError } = useGetVehicles(page);
+    const { data : vehicles, isLoading, isError } = useGetVehicles(page);
     const {mutateAsync : deleteVehicle, isError : deleteError} = useDeleteVehicle();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     // Define columns for the DataGrid
@@ -104,7 +104,7 @@ function Vehicles() {
         return api.delete(`/${endPoint}/${id}`);
     });
 
-
+console.log(vehicles)
     const handleDeleteClick =  ({id}) => {
             openPopup();
             setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
@@ -158,7 +158,7 @@ function Vehicles() {
                                   }}
                                 paginationMode="server"
                                 columns={vehicleColumns}
-                                rows={data?.data?.data}
+                                rows={vehicles?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
@@ -166,7 +166,7 @@ function Vehicles() {
                                       },
                                     },
                                 }}
-                                rowCount={data?.data?.meta?.total}
+                                rowCount={vehicles?.meta?.total}
                                 pageSizeOptions={[15, 25, 50, 100]}  
                                 apiRef={apiRef}
                                 onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}

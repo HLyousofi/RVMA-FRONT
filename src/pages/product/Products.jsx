@@ -3,7 +3,6 @@ import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
-import { useMutation} from "react-query";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import useGetProducts,{useDeleteProduct} from "../../services/ProductService";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +27,7 @@ function Products() {
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='productform';
     const apiRef = useGridApiRef();
-    const { data, isLoading, isError } = useGetProducts(page);
+    const { data : products, isLoading, isError } = useGetProducts(page);
     const {mutateAsync : deleteProduct, isError : deleteError} = useDeleteProduct();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     // Define columns for the DataGrid
@@ -75,31 +74,6 @@ function Products() {
             flex: 0.5,
             editable: false,
           },
-          // {
-          //   field: 'purchasePrice',
-          //   headerName: 'Achat',
-          //   flex: 0.5,
-          //   editable: true,
-          // },
-          // {
-          //   field: 'sellingPrice',
-          //   headerName: 'Vente',
-          //   flex: 0.5,
-          //   editable: true,
-          // },
-          // {
-          //   field: 'totalStock',
-          //   headerName: 'Stock',
-          //   sortable: true,
-          //   flex: 0.5,
-          //   editable: false,
-          // },
-          // {
-          //   field: 'description',
-          //   headerName: 'Description',
-          //   flex: 1,
-          //   editable: true,
-          // },
           {
             field: 'actions',
             headerName: 'Actions',
@@ -130,14 +104,11 @@ function Products() {
       closeDialog();
     }
 
-    const mutation = useMutation((id) => {
-        return  api.delete(`/${endPoint}/${id}`);
-    });
 
 
     const handleDeleteClick =  ({id}) => {
             openPopup();
-            setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
+            setMessage('Êtes-vous sûr de bien vouloir supprimer ce Produit ?')
             setNoAction(() => () => {});
             setYesAction(() => async () => { 
               try {
@@ -192,7 +163,7 @@ function Products() {
                                   }}
                                 paginationMode="server"
                                 columns={productColumns}
-                                rows={data?.data?.data}
+                                rows={products?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
@@ -200,7 +171,7 @@ function Products() {
                                       },
                                     },
                                 }}
-                                rowCount={data?.data?.meta?.total}
+                                rowCount={products?.data?.meta?.total}
                                 pageSizeOptions={[15, 25, 50, 100]}  
                                 apiRef={apiRef}
                                 onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}

@@ -25,9 +25,10 @@ function Customers() {
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='customerform';
     const apiRef = useGridApiRef();
-    const { data, isLoading, isError } = useGetCustomers(page);
+    const { data : customers, isLoading, isError } = useGetCustomers(page);
     const {mutateAsync : deleteCustomer} = useDeleteCustomer();
 
+    console.log(customers)
     // Define columns for the DataGrid
     const customerColumns = [
         {
@@ -135,7 +136,7 @@ function Customers() {
                             <DataGrid 
                                 paginationMode="server"
                                 columns={customerColumns}
-                                rows={data?.data?.data}
+                                rows={customers?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
@@ -143,7 +144,7 @@ function Customers() {
                                       },
                                     },
                                   }}
-                                  rowCount={data?.data?.meta?.total}
+                                  rowCount={customers?.meta?.total}
                                   pageSizeOptions={[15, 25, 50, 100]}  
                                   apiRef={apiRef}
                                   onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}

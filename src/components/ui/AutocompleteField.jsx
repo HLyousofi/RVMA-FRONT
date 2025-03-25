@@ -1,7 +1,7 @@
 import { Controller } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
 
-const AutocompleteField = ({ options, name, label, control,rules = {}, isLoading=false}) => {
+const AutocompleteField = ({ options, name, label, control, rules = {}, variant='outlined', isLoading=false}) => {
 
 
 
@@ -19,7 +19,7 @@ const AutocompleteField = ({ options, name, label, control,rules = {}, isLoading
             options={options || []}
             disabled={isLoading === "true"}
             value={value || null}
-            getOptionLabel={(option) => option?.label || ''}
+            getOptionLabel={(option) => option?.label || option?.plateNumber}
             isOptionEqualToValue={(option, value) => option?.id === value?.id}
             onChange={(_, value) => {
               field.onChange(value);
@@ -28,7 +28,7 @@ const AutocompleteField = ({ options, name, label, control,rules = {}, isLoading
               <TextField
                 {...params}
                 label={label}
-                variant="outlined"
+                variant={variant}
                 className="w-full"
                 error={!!error}
                 helperText={error?.message}
