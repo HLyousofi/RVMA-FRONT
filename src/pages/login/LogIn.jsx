@@ -16,18 +16,15 @@ import { Button } from '@mui/material';
 import RelativeAlertComponent from '../../components/ui/RelativeAlertComponent';
 import { useForm } from "react-hook-form";
 import InputField from '../../components/ui/InpuField';
+import useLogin from '../../services/LogService';
 
 // Functional component definition for the login page
 function Login() {
-
-
-    const { register, 
-            handleSubmit,
-            setError,
-            control, 
-            formState : { errors } } = useForm();
+    const { register, handleSubmit,setError,control, formState : { errors } } = useForm();
     // Custom hook for displaying alerts
     const {setAlert} = useAlert();
+
+    const {mutateAsync : login} = useLogin();
 
     // React router navigation hook
     const navigate = useNavigate();
@@ -45,31 +42,45 @@ function Login() {
     }
 
 
-    // const onSubmit = ( e, data ) => {
-    //     e.eventDefault();
-    //     console.log(data);
-
-    // }
-
     const onSubmit = async (data) => {
-            try {
-                const response = await api.post('/login', data );
-                
-                if(response.data.success){
-                        setApiToken(response.data.accessToken); 
-                        navigate('/customers');
-                        setAlert({active : true, type : "success", message : 'Connexion réussie !'});
-                }else {
-                    setError("email", { message : response?.data?.error})
-                    setApiToken();
-                }
-            }catch(err) {
-                console.log(err)
-                if(err?.response?.status < 500){
-                    setError("email",{message : "Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !"});
-                }
+
+        try{
+            await login( data,{
+                                                onSuccess : async (response) => {
+                                                    setApiToken(response.accessToken);
+                                                    navigate('/customers');
+                                                    setAlert({
+                                                                active  : true, 
+                                                                type    : "success", 
+                                                                message : 'Connexion réussie !'
+                                                            });
+                                                }
+
+            });
+            }catch(error){
+            setAlert({
+                        active : true, 
+                        type : "error", 
+                        message : error.response?.data?.message
+                    });
             }
-        // }
+            // try {
+            //     const response = await api.post('/login', data );
+                
+            //     if(response.data.success){
+            //             setApiToken(response.data.accessToken); 
+            //             navigate('/customers');
+            //             setAlert({active : true, type : "success", message : 'Connexion réussie !'});
+            //     }else {
+            //         setError("email", { message : response?.data?.error})
+            //         setApiToken();
+            //     }
+            // }catch(err) {
+            //     console.log(err)
+            //     if(err?.response?.status < 500){
+            //         setError("email",{message : "Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !"});
+            //     }
+            // }
     }
 
 

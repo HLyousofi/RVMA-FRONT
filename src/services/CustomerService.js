@@ -1,13 +1,8 @@
-
 import api  from './axios-service';
 import { useQuery, useMutation } from 'react-query';
 
 
 const endPointCustomers = '/customers';
-
-
-
-
 
 const useGetCustomers = (page) => {
 
