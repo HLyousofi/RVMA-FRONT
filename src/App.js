@@ -54,7 +54,8 @@ function App() {
                     <Route path="/orders/orderform" element={<OrderForm />} />
                     <Route path="/invoices" element={<Invoices />} />
                     <Route path="/quotes" element={<Quotes />} />
-                    <Route path="/quotes/quoteform" element={<QuoteForm />} />
+                    <Route path="/quotes/create" element={<QuoteForm />} />
+                    <Route path="/quotes/:id/edit" element={<QuoteForm />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/productForm" element={<ProductForm />} />
                     <Route path="/logout" element={<LogOut />} />

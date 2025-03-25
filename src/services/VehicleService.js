@@ -13,12 +13,38 @@ const useGetVehicles = (page) => {
 
     return useQuery({
         queryKey: ['vehicles', page],
-        queryFn: async () =>{ return await api.get(`${endPointVehicles}?page=${page.page}&pageSize=${page.pageSize}`)},
+        queryFn: async () =>{ 
+            try{
+                const response = await api.get(`${endPointVehicles}?page=${page.page}&pageSize=${page.pageSize}`);
+                return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        },
         keepPreviousData : true,
     });
 
 }
 export default useGetVehicles;
+
+export const useGetVehcilesNames = () => {
+
+    return useQuery({
+        queryKey: ['vehiclesName'],
+        queryFn: async () => {
+            try{
+                const response = await api.get(`${endPointVehicles}?pageSize=all`);
+                return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+
+        },
+        keepPreviousData : true
+    });
+}
 
 
 export const usePostVehicle = () => {

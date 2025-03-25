@@ -13,12 +13,38 @@ const useGetCustomers = (page) => {
 
     return useQuery({
         queryKey: ['customers', page],
-        queryFn: async () => {return await api.get(`${endPointCustomers}?page=${page.page}&pageSize=${page.pageSize}`)},
+        queryFn: async () => {
+            try{
+                const response = await api.get(`${endPointCustomers}?page=${page.page}&pageSize=${page.pageSize}`);
+                return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        },
         keepPreviousData : true
     });
 
 }
 export default useGetCustomers;
+
+export const useGetCustomersNames = () => {
+
+    return useQuery({
+        queryKey: ['customersName'],
+        queryFn: async () => {
+            try{
+                const response = await api.get(`${endPointCustomers}?pageSize=all`);
+                return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+
+        },
+        keepPreviousData : true
+    });
+}
 
 
 export const usePostCustomer = () => {
