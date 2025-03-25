@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 import Login from './pages/login/LogIn';
-import LogOut from './pages/login/LogOut'
 import Customers from './pages/customer/Customers';
 import ResquireAuth from './components/RequireAuth';
 import Layout from './layout/Layout';
@@ -58,7 +57,6 @@ function App() {
                     <Route path="/quotes/:id/edit" element={<QuoteForm />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/productForm" element={<ProductForm />} />
-                    <Route path="/logout" element={<LogOut />} />
                 </Route>
             </Route>
         </Routes>
