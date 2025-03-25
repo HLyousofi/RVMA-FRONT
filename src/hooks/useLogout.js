@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import useAuth from './useAuth';
 import usePopup from './usePopup';
-import { useLogout as useLogoutService } from '../services/LogService'; // Renommer pour éviter la confusion
+import { useLogout as useLogoutService } from '../services/LogService'; 
 
 const useLogout = () => {
   const { setApiToken } = useAuth();

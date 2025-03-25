@@ -12,6 +12,7 @@ import AddButton from "../../components/ui/AddButton";
 import useGetQuotes,{useDeleteQuote} from "../../services/QuoteService";
 import Badge from "../../components/ui/Badge";
 import { useNavigate } from "react-router-dom";
+import { calculateTTC } from "../../utils/utility";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -68,7 +69,9 @@ const Quote = () => {
           headerName: 'Total',
           sortable: false,
           width: 150,
-          // renderCell: params => formatPrice(params.row.price)
+          align: 'right', // Alignement du contenu des cellules à droite
+          headerAlign: 'right', // Alignement de l’en-tête à droite
+          renderCell: params => formatPrice(calculateTTC(+params.row.total))
     
         },
         {
@@ -105,15 +108,6 @@ const Quote = () => {
         rejected : 'Rejetée',
         draft : 'Brouillon'
       }
- 
-
-
-    const handelFetchData = (id) => {
-        
-        setCustomerId(id);
-
-    }
-
     
     const handlEditClick = (quote) => {
       navigate(`/${endPoint}/${quote.id}/${endPointEdit}`);

@@ -1,6 +1,5 @@
-import InputField from '../../components/ui/InpuField';
 import AutocompleteField from '../../components/ui/AutocompleteField';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import DatePickerField from '../../components/ui/DatePickerField';
 import useAlert from '../../hooks/useAlert';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -12,6 +11,7 @@ import { useGetCustomersNames } from '../../services/CustomerService';
 import  useGetVehicles from '../../services/VehicleService';
 import QuoteOrderComponent from '../../components/ProductInvoiceTable';
 import { usePostQuote, useUpdateQuote, useGetQuote } from '../../services/QuoteService';
+import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 
 
 const QuoteForm = () => {
@@ -22,14 +22,10 @@ const QuoteForm = () => {
 
     const [page, setPage] = useState({page : 1, pageSize : 'all'});
     const queryClient = useQueryClient();
-    const { data : workOrder, isLoading } = useGetQuote({id});
+    const { data : workOrder,isLoading : isLoadingWorkorder, isError : isErrorWorkorder } = useGetQuote({id});
     const navigate = useNavigate();
-    const location = useLocation();
     const dayjs = require('dayjs'); 
-    const {  
-        handleSubmit,
-        control,
-        reset, watch } = useForm();
+    const { handleSubmit, control, reset, watch } = useForm();
     const [formTitle, setFormTitle] = useState('Nouveau Devis');
     const {setAlert} = useAlert();
     const [local, setLocal] = useState('fr-fr');
@@ -79,10 +75,6 @@ const QuoteForm = () => {
             }))
         };
     }
-
-  
-
-
    
     const onSubmit = async (formData) => {
             // Transform the data
@@ -152,13 +144,17 @@ const QuoteForm = () => {
       
         (vehicle) => vehicle?.customerId === selectedCustomer?.id
     );
-      
-   
-
-    return (
+    if(isLoadingWorkorder){
+        return <CircularIndeterminate />
+    }
+    else if(isErrorWorkorder)  {
+        return <p>Error fetching data</p>;
+    }
+     // Render the main content with the DataGrid
+    else  return (
         <div className="w-full h-full  bg-white dark:bg-gray-800 rounded">
         <div className="px-6 py-6 lg:px-8">
-            <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300">{ formTitle }</h3>
+            <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300"> Devis : { workOrder ? workOrder.data.workorderNumber : 'Nouveau'  }</h3>
             <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-x-96 gap-y-3 grid-cols-2 md:grid-cols-2 ">
                     <AutocompleteField
@@ -170,10 +166,6 @@ const QuoteForm = () => {
                         variant="standard"
                         rules={{
                             required: 'Customer is required',
-                            // minLength: {
-                            //         value : 2,
-                            //         message: 'Enter a valid name',
-                            //         },
                             }}
                     />
                     <DatePickerField   
@@ -203,99 +195,6 @@ const QuoteForm = () => {
             </form>
          </div>
         </div>
-                    // <div className="w-full h-full  rounded">
-                    //     <div className="px-6 py-6 lg:px-8 bg-white dark:bg-gray-800 rounded" >
-                    //         <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300">{ formTitle }</h3>
-                    //         <form 
-                    //             className="space-y-10"
-                    //             // onSubmit={handleSubmit}
-                    //             >
-                    //             <div className="flex justify-between w-full">
-                    //                 <div className=" w-1/3">
-                    //                     <Autocomplete
-                    //                         fullWidth
-                    //                         autoHighlight
-                    //                         disabled={isLoading}
-                    //                         disableClearable
-                    //                         id="customer-name"
-                    //                         options={data?.data}
-                    //                         getOptionKey={(option) => option.id}
-                    //                         inputValue={location?.state?.customerName}
-                    //                         onChange={(event, newValue) => handleCustomerChange(newValue)}
-                    //                         renderInput={(params) => <TextField
-                    //                                                     inputRef={customerIdRef} 
-                    //                                                     {...params} 
-                    //                                                     label="Client"
-                    //                                                     required
-                    //                                                     variant="standard"
-                    //                                                     error={nameError}
-                    //                                                     InputProps={{
-                    //                                                         ...params.InputProps,
-                    //                                                         type: 'search',
-                    //                                                       }} 
-                                            
-                    //                         />}
-                    //                     />
-                    //                     <div className="font-medium text-white dark:text-gray-300">
-                    //                         {customerAdress}
-                    //                     </div>
-                    //                 </div>
-                    //                 <div className="w-1/3">
-                    //                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={local} >
-                    //                         <DatePicker
-                    //                             label="Expiration"
-                    //                             slotProps={{ textField: { variant: "standard", helperText: 'DD/MM/YYYY' } }}
-                    //                             size="small"
-                    //                             minDate={moment()}
-                    //                             //onChange={handleDateChange}
-                    //                             renderInput={(params) => <input
-                    //                                                         {...params}  
-                    //                                                         />}
-                    //                         />
-                    //                     </LocalizationProvider>               
-                    //                 </div>                               
-                    //             </div>
-                    //             <div className="flex justify-between">
-                    //                  <div  className="w-1/3">
-                                       
-                    //                     <Autocomplete
-                    //                             fullWidth
-                    //                             autoHighlight
-                    //                             disabled={isLoading2}
-                    //                             disableClearable
-                    //                             options={vehicleOption}
-                    //                             getOptionKey={(option) => setVehicleId(option.id)}
-                    //                             getOptionLabel={(option) => option?.plateNumber}
-                    //                             onChange={(event, newValue) => handleVehicleChange(newValue)}
-                                                
-                    //                             key={ customerId }
-                    //                             renderInput={(params) => <TextField
-                    //                                                         inputRef={vehicleIdRef} 
-                    //                                                         {...params} 
-                    //                                                         label="Matricule"
-                    //                                                         required
-                    //                                                         variant="standard"
-                    //                                                         error={nameError}
-                    //                                                         InputProps={{
-                    //                                                             ...params.InputProps,
-                    //                                                             type: 'search',
-                    //                                                         }} 
-                                                
-                    //                             />}
-                    //                         />
-                    //                     { selectedVehicle && <div className="font-medium text-gray-700 dark:text-gray-300"> 
-                    //                      Marque :  {selectedVehicle.brand} <br/>
-                    //                      Model :{ selectedVehicle.model} 
-                    //                      </div> }
-                    //                 </div>
-                    //             </div>
-                    //             {/* <div className=" flex justify-end mt-4 ">
-                    //                 <Button variant="outlined" type="reset" color="secondary" sx={{marginRight: 4 }} >annuler</Button>
-                    //                 <Button variant="outlined" type="submit" color="success" >{buttonAction}</Button>
-                    //             </div> */}
-                    //         </form>
-                    //     </div>
-                    // </div>
     )
 };
 

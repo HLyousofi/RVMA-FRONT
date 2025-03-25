@@ -4,6 +4,7 @@ import useGetProducts from "../services/ProductService";
 import AutocompleteField from "./ui/AutocompleteField";
 import InputField from "./ui/InpuField";
 import { useFieldArray } from "react-hook-form";
+import formatPrice, {calculateTTC} from "../utils/utility";
 
  const QuoteOrderComponent = ({control, watch}) => {
   const [rows, setRows] = useState([]);
@@ -47,7 +48,7 @@ const getSubtotal = () => {
 
   const subtotal = getSubtotal();
   const taxAmount = getTaxAmount(subtotal);
-  const totalWithTax = getTotalWithTax(subtotal, taxAmount);
+  const totalWithTax = formatPrice(calculateTTC(+subtotal));
 
   return (
         <div className="relative overflow-x-auto">
@@ -58,13 +59,13 @@ const getSubtotal = () => {
                             produit
                         </th>
                         <th scope="col" className="w-1/5 px-6 py-3">
-                            Qty
+                          Quantite
                         </th>
                         <th scope="col" className="w-1/5 px-6 py-3 ">
-                            Price Unit
+                            Prix Unitaire
                         </th>
                         <th scope="col" className="w-1/5 px-6 py-3 rounded-e-lg">
-                            Total Price 
+                            Total  
                         </th>
                     </tr>
                 </thead>
@@ -97,7 +98,7 @@ const getSubtotal = () => {
                                   rules={{required: 'Quantity is required',
                                             min: {
                                               value: 0.1, // Ensures price is greater than 0
-                                              message: "Price must be positive",
+                                              message: "Quantity must be positive",
                                             },
                                   }}
                           />
@@ -107,6 +108,7 @@ const getSubtotal = () => {
                                 name={`rows.${index}.unitPrice`}
                                 label="Prix UT"
                                 type="number"
+                                defaultValue="0.00"
                                 variant="standard"
                                 control={control}
                                 rules={{ required: 'price is required',
@@ -138,7 +140,7 @@ const getSubtotal = () => {
                   )})}
                   <tr>
                     <td className="col-2">
-                      <Button className="mt-4" onClick={addRow}>Add Product</Button>
+                      <Button className="mt-4" onClick={addRow}>Ajouter un Product</Button>
                     </td>
                   </tr>
                 </tbody>
@@ -146,12 +148,12 @@ const getSubtotal = () => {
                   <tr className="font-semibold  text-gray-900 dark:text-white">
                     <td className="px-6 py-3" colSpan="2"></td>
                     <td className="px-6 py-3 text-base text-right">Montant hors taxes:</td>
-                    <td className="px-6 py-3 text-base text-right">{subtotal}</td>
+                    <td className="px-6 py-3 text-base text-right">{formatPrice(subtotal)}</td>
                   </tr>
                   <tr className="font-semibold text-gray-900 dark:text-white">
                   <td className="px-6 py-3" colSpan="2"></td>
                   <td className="px-6 py-3 text-base text-right">TVA 20%:</td>
-                  <td className="px-6 py-3 text-base text-right border-b">{taxAmount}</td>
+                  <td className="px-6 py-3 text-base text-right border-b">{formatPrice(taxAmount)}</td>
                   </tr>
                   <tr className="font-semibold text-gray-900 dark:text-white">
                     <td className="px-6 py-3" colSpan="2"></td>
