@@ -171,7 +171,7 @@ function Products() {
                                       },
                                     },
                                 }}
-                                rowCount={products?.data?.meta?.total}
+                                rowCount={products?.meta?.total}
                                 pageSizeOptions={[15, 25, 50, 100]}  
                                 apiRef={apiRef}
                                 onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
