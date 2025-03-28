@@ -64,23 +64,6 @@ function Login() {
                         message : error.response?.data?.message
                     });
             }
-            // try {
-            //     const response = await api.post('/login', data );
-                
-            //     if(response.data.success){
-            //             setApiToken(response.data.accessToken); 
-            //             navigate('/customers');
-            //             setAlert({active : true, type : "success", message : 'Connexion réussie !'});
-            //     }else {
-            //         setError("email", { message : response?.data?.error})
-            //         setApiToken();
-            //     }
-            // }catch(err) {
-            //     console.log(err)
-            //     if(err?.response?.status < 500){
-            //         setError("email",{message : "Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !"});
-            //     }
-            // }
     }
 
 

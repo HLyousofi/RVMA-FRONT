@@ -9,22 +9,11 @@ import formatPrice, {calculateTTC} from "../utils/utility";
  const QuoteOrderComponent = ({control, watch}) => {
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState({page : 1, pageSize : 'all'});
-
-
   const { data : products, isLoading : isLoadingProducts, isError : fetchProductsError } = useGetProducts(page);
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "rows",
-  });
-
-
+  const { fields, append, remove } = useFieldArray({control,name: "rows"});
   const addRow = () => {
     append({ product: null, quantity: "", unitPrice: "", totalPrice: "" });
   };
-
- 
-
 // Watch all rows from the form
 const watchedRows = watch("rows") || [];
 
@@ -40,10 +29,6 @@ const getSubtotal = () => {
   const getTaxAmount = (subtotal) => {
     const TAX_RATE = 0.20; // 20% tax rate
     return (subtotal * TAX_RATE).toFixed(2);
-  };
-
-  const getTotalWithTax = (subtotal, tax) => {
-    return (parseFloat(subtotal) + parseFloat(tax)).toFixed(2);
   };
 
   const subtotal = getSubtotal();
@@ -128,13 +113,7 @@ const getSubtotal = () => {
                                 disabled
                                 variant="standard"
                                 control={control}
-                                // rules={{ required: 'price is required',
-                                //               min: {
-                                //                 value: 0.1, // Ensures price is greater than 0
-                                //                 message: "Price must be positive",
-                                //               },
-                                // }}
-                        />
+                       />
                         </td>
                     </tr>
                   )})}

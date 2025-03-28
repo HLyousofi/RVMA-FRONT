@@ -1,12 +1,9 @@
 import { useState } from "react";
-import api  from '../../services/axios-service';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
-import { Chip } from "@mui/material";
 import formatPrice from "../../utils/utility";
-import { useQuery, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddButton from "../../components/ui/AddButton";
 import useGetQuotes,{useDeleteQuote} from "../../services/QuoteService";
@@ -28,7 +25,6 @@ const Quote = () => {
     const endPointCreate = 'create';
     const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
-    const [customerId, setCustomerId] = useState();
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const { data : workOrder, isLoading, isError } = useGetQuotes(page);
 
@@ -97,7 +93,6 @@ const Quote = () => {
           width: 100,
           getActions: (params) => [
             <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
-            ///*<GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
           ],
         },
       ];

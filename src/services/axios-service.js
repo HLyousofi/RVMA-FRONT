@@ -18,20 +18,25 @@ axiosClient.interceptors.response.use((response) => {
     return response;
 }, (error) => {
     const {response} = error;
-    if(response && response.status >= 500){
-    //     localStorage.clear();
-    //    const  params = {errorCode : response.status, errorMessage : response.statusText};
-    //    const queryString = new URLSearchParams(params).toString();
-    console.log(response);
-    
-    //    window.location.replace(`/errorPage?${queryString}`);
-    }else if(response.status == 401){
-        console.error(response);
-        window.location.replace("/");
-        
-    }else{
+    if (response) {
+        if (response.status >= 500) {
+            console.log('Server error:', response);
+            // window.location.replace(`/errorPage?errorCode=${response.status}&errorMessage=${response.statusText}`);
+        } else if (response.status === 401) {
+            console.error('Unauthorized:', response);
+            localStorage.removeItem('apiToken'); // Nettoyer le token invalide
+            window.location.replace("/");
+        } else if (response.status === 302) {
+            console.warn('Redirect detected:', response);
+            // Gérer la redirection si nécessaire
+        } else {
+            throw error; // Relancer les autres erreurs (ex. 422)
+        }
+    } else {
+        console.error('Network error:', error);
         throw error;
     }
+    
 })
 
 
