@@ -10,8 +10,9 @@ import ResetButton from '../../components/ui/ResetButton';
 import { useGetCustomersNames } from '../../services/CustomerService';
 import  useGetVehicles from '../../services/VehicleService';
 import QuoteOrderComponent from '../../components/ProductInvoiceTable';
-import { usePostQuote, useUpdateQuote, useGetQuote } from '../../services/QuoteService';
+import { usePostQuote, useUpdateQuote, useGetQuote, downloadQuotePDF } from '../../services/QuoteService';
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
+import { Button } from '@mui/material';
 
 
 const QuoteForm = () => {
@@ -38,7 +39,6 @@ const QuoteForm = () => {
 
     useEffect(() => {
         if (id && workOrder) {
-            console.log(workOrder)
           reset({
             customer: workOrder.data.customer || '',
              vehicle: workOrder.data.vehicle || '',
@@ -58,6 +58,15 @@ const QuoteForm = () => {
           });
         }
       }, [id, workOrder, reset]);
+
+    const downloadQuote = () => {
+        try{
+            downloadQuotePDF(id);
+        }catch(error){
+            console.error(error.message);
+
+        }
+    }
 
    
         // Function to transform the data
@@ -155,6 +164,7 @@ const QuoteForm = () => {
         <div className="w-full h-full  bg-white dark:bg-gray-800 rounded">
         <div className="px-6 py-6 lg:px-8">
             <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300"> Devis : { workOrder ? workOrder.data.workorderNumber : 'Nouveau'  }</h3>
+            <Button onClick={downloadQuote}>pdf</Button>
             <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-x-96 gap-y-3 grid-cols-2 md:grid-cols-2 ">
                     <AutocompleteField

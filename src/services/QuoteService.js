@@ -94,3 +94,20 @@ export const useDeleteQuote = () => {
             }
     }}) 
 }
+
+export const downloadQuotePDF = async (quoteId) => {
+    try {
+        const response = await api.post(`workorders/${quoteId}/pdf`, {}, {
+            responseType: 'blob',
+        });
+        // const url = window.URL.createObjectURL(new Blob([response.data]));
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
+
+        window.open(url, '_blank');
+        window.URL.revokeObjectURL(url);
+       
+    } catch (error) {
+        console.error('Error downloading PDF:', error);
+        alert('Failed to download quote');
+    }
+};

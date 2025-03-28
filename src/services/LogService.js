@@ -24,7 +24,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
       try {
-        const response = await api.get(`/logout`);
+        const response = await api.post(`/logout`);
         return response.data; // Peut retourner un message de succès ou rien
       } catch (error) {
         console.error("Erreur API Logout :", error.response?.data || error);
