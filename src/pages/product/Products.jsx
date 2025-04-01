@@ -5,7 +5,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import useGetProducts,{useDeleteProduct} from "../../services/ProductService";
-import { useNavigate } from "react-router-dom";
 import usePopup from "../../hooks/usePopup";
 import  Dialog  from '../../components/Dialog';
 import useDialog from "../../hooks/useDialog";

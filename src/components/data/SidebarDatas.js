@@ -8,6 +8,7 @@ import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import StoreIcon from '@mui/icons-material/Store';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import TuneIcon from '@mui/icons-material/Tune';
 
  const SidebarData = [
     {
@@ -49,6 +50,11 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
         title : "Transaction",
         icon : <LocalShippingOutlinedIcon />,
         link : "transaction"
+    },
+    {
+        title : "Parametre",
+        icon : <TuneIcon />,
+        link :  "setting"
     },
 
     {
