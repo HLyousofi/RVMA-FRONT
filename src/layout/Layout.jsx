@@ -25,14 +25,20 @@ export default function Layout() {
     
     return(
         <ThemeProvider theme={darkTheme}>
-            <div className=' min-h-screen overflow-hidden bg-gray-100 dark:bg-gray-600'>
+            <div className=' min-h-screen  overflow-hidden bg-gray-100 dark:bg-gray-600'>
                 <PopUp />
                 <AlertComponent />
                 <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
                 <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-                <main className={` h-full   mb-12 w-[100%] px-1 ${ isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "}  mt-24`} >
+                {/* <main className={` min-h-screen  pt-20  w-[100%] px-1 ${ isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "}  my-4`} >
                     <Outlet />
-                </main>
+                </main> */}
+                <main className={`min-h-screen pt-20 w-full px-1  ${
+                    isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0"
+                }`}
+            >
+                <Outlet />
+            </main>
             </div>
         </ThemeProvider>
     )
