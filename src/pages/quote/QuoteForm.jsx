@@ -10,7 +10,7 @@ import ResetButton from '../../components/ui/ResetButton';
 import { useGetCustomersNames } from '../../services/CustomerService';
 import  useGetVehicles from '../../services/VehicleService';
 import QuoteOrderComponent from '../../components/ProductInvoiceTable';
-import { usePostQuote, useUpdateQuote, useGetQuote, downloadQuotePDF } from '../../services/QuoteService';
+import { usePostQuote, useUpdateQuote, useGetQuote } from '../../services/QuoteService';
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import { Button } from '@mui/material';
 
@@ -29,8 +29,7 @@ const QuoteForm = () => {
     const { handleSubmit, control, reset, watch } = useForm();
     const [formTitle, setFormTitle] = useState('Nouveau Devis');
     const {setAlert} = useAlert();
-    const [local, setLocal] = useState('fr-fr');
-    const [quoteId, setQouteId] = useState(null);
+   
    
     const { data : customers, isLoading : isLoadingCustomers, isError : fetchCustomersError } = useGetCustomersNames();
 
@@ -59,14 +58,7 @@ const QuoteForm = () => {
         }
       }, [id, workOrder, reset]);
 
-    const downloadQuote = () => {
-        try{
-            downloadQuotePDF(id);
-        }catch(error){
-            console.error(error.message);
-
-        }
-    }
+ 
 
    
         // Function to transform the data
@@ -80,7 +72,7 @@ const QuoteForm = () => {
             productsWorkOrder: formData.rows.map(row => ({
                 productId: row.product.id,
                 quantity: parseInt(row.quantity, 10), // Convert string to integer
-                unitPrice: parseFloat(row.unitPrice) // Convert string to float
+                unitPrice: parseInt(row.unitPrice, 10) // Convert string to float
             }))
         };
     }
@@ -88,7 +80,6 @@ const QuoteForm = () => {
     const onSubmit = async (formData) => {
             // Transform the data
     const qouteData = prepareQuoteForApi(formData);
-    console.log(qouteData);
     if(id != null){
             try{
                 await updateQuote({id, qouteData},{
@@ -164,7 +155,6 @@ const QuoteForm = () => {
         <div className="w-full h-full  bg-white dark:bg-gray-800 rounded">
         <div className="px-6 py-6 lg:px-8">
             <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300"> Devis : { workOrder ? workOrder.data.workorderNumber : 'Nouveau'  }</h3>
-            <Button onClick={downloadQuote}>pdf</Button>
             <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-x-96 gap-y-3 grid-cols-2 md:grid-cols-2 ">
                     <AutocompleteField

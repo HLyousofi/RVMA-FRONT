@@ -10,6 +10,7 @@ import useGetQuotes,{useDeleteQuote} from "../../services/QuoteService";
 import Badge from "../../components/ui/Badge";
 import { useNavigate } from "react-router-dom";
 import { calculateTTC } from "../../utils/utility";
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import {
     DataGrid,
     GridActionsCellItem,
@@ -23,6 +24,7 @@ const Quote = () => {
     const endPoint = 'quotes';
     const endPointEdit ='edit';
     const endPointCreate = 'create';
+    const endPointShow = 'show'
     const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
@@ -76,7 +78,7 @@ const Quote = () => {
           width: 150,
           renderCell: (params) => {
             // Access the nested `label` field
-            return <Badge label={status[params.row.status]} /> ;
+            return <Badge label={params.row.status} /> ;
           }
         },
         {
@@ -93,19 +95,23 @@ const Quote = () => {
           width: 100,
           getActions: (params) => [
             <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
+            <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
           ],
         },
       ];
 
     const status = {
-        draft : 'brouillon',
+        draft : 'Brouillon',
+        pending : 'En attente',
         approved : 'approuvée',
-        rejected : 'Rejetée',
-        draft : 'Brouillon'
       }
     
     const handlEditClick = (quote) => {
       navigate(`/${endPoint}/${quote.id}/${endPointEdit}`);
+    }
+
+    const handlShowClick = (quote) => {
+      navigate(`/${endPoint}/${quote.id}/${endPointShow}`);
     }
 
   
