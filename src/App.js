@@ -22,6 +22,7 @@ import { Navigate } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from 'react-query';
 import RoleForm from './pages/admin/roles/RoleForm';
 import Setting from './pages/settings/Settings';
+import ShowQuote from './pages/quote/ShowQuote';
 
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ function App() {
                     <Route path="/quotes" element={<Quotes />} />
                     <Route path="/quotes/create" element={<QuoteForm />} />
                     <Route path="/quotes/:id/edit" element={<QuoteForm />} />
+                    <Route path="/quotes/:id/show" element={<ShowQuote />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/productForm" element={<ProductForm />} />
                     <Route path="/setting" element={<Setting />} />
