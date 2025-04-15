@@ -12,7 +12,6 @@ import  useGetVehicles from '../../services/VehicleService';
 import QuoteOrderComponent from '../../components/ProductInvoiceTable';
 import { usePostQuote, useUpdateQuote, useGetQuote } from '../../services/QuoteService';
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
-import { Button } from '@mui/material';
 
 
 const QuoteForm = () => {
@@ -20,7 +19,6 @@ const QuoteForm = () => {
     const {mutateAsync : addQuote} = usePostQuote();
     const {mutateAsync : updateQuote} = useUpdateQuote();
     const {id} = useParams();
-
     const [page, setPage] = useState({page : 1, pageSize : 'all'});
     const queryClient = useQueryClient();
     const { data : workOrder,isLoading : isLoadingWorkorder, isError : isErrorWorkorder } = useGetQuote({id});
@@ -30,21 +28,14 @@ const QuoteForm = () => {
     const [formTitle, setFormTitle] = useState('Nouveau Devis');
     const {setAlert} = useAlert();
    
-   
     const { data : customers, isLoading : isLoadingCustomers, isError : fetchCustomersError } = useGetCustomersNames();
-
     const { data : vehicles, isLoading : isLoadingVehicles, isError : fetchVehiclesError} = useGetVehicles(page);
-
 
     useEffect(() => {
         if (id && workOrder) {
           reset({
             customer: workOrder.data.customer || '',
              vehicle: workOrder.data.vehicle || '',
-            // type: workOrder.data.type || 'quote',
-            // orderDate: workOrder.data.orderDate || '',
-            // deliveryDate: workOrder.data.deliveryDate || '',
-            // status: workOrder.data.status || 'pending',
              expirationDate: workOrder.data.expirationDate ,
             // comment: workOrder.data.comment || '',
             rows: workOrder.data.products
@@ -58,15 +49,12 @@ const QuoteForm = () => {
         }
       }, [id, workOrder, reset]);
 
- 
-
-   
         // Function to transform the data
     function prepareQuoteForApi(formData) {
         return {
             customerId: formData.customer.id,
             vehicleId: formData.vehicle.id,
-            status : "draft",
+            status : workOrder?.data?.status ?? 'draft',
             type : "quote",
             expirationDate: dayjs(formData.expirationDate).format('YYYY-MM-DD HH:mm:ss'), // Adjust format as needed
             productsWorkOrder: formData.rows.map(row => ({
@@ -131,7 +119,6 @@ const QuoteForm = () => {
             
     }  
     }
-
 
 
     // Watch the selected customer
