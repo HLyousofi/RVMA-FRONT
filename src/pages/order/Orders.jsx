@@ -1,164 +1,163 @@
 import { useState } from "react";
-import api  from '../../services/axios-service';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
-import { Chip } from "@mui/material";
+import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import formatPrice from "../../utils/utility";
-import { useQuery, useQueryClient } from "react-query";
-import AddButton from "../../components/ui/AddButton";
-
-
+import { useQueryClient } from "react-query";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useNavigate, Link } from "react-router-dom";
+import AddButton from "../../components/ui/AddButton";
+import useGetOrders,{useDeleteOrder} from "../../services/OrderService";
+import Badge from "../../components/ui/Badge";
+import { useNavigate } from "react-router-dom";
+import { calculateTTC } from "../../utils/utility";
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import {
     DataGrid,
     GridActionsCellItem,
     useGridApiRef
   } from '@mui/x-data-grid';
 
-
-
-// Define the functional component Orders
-const Orders = () => {
-    // Initialize state and variables
-    const [orders, setOrders] = useState();
-    const [vehicleId, setVehicleId] = useState();
-    const [enable, setEnable] = useState(false);
+const Order = () => {
+    
     const {setAlert} = useAlert();
-    const endPoint = 'order';
-    const endPointEdit ='orderform';
+    const navigate = useNavigate();
+    const endPoint = 'orders';
+    const endPointEdit ='edit';
+    const endPointCreate = 'create';
+    const endPointShow = 'show'
     const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
-    const [customerId, setCustomerId] = useState();
     const [page, setPage] = useState({page : 1, pageSize : 15});
+    const { data : orders, isLoading, isError } = useGetOrders(page);
+
+    const status = {
+      pending : 'En attente',
+      in_progress : 'En Cours',
+      completed : 'Terminer',
+    }
 
     const ordersColumns = [
-        // { field: 'id',
-        //   headerName: 'ID', 
-        //   width: 90 
-        // },
         {
-          field: 'name',
-          headerName: 'Nature',
-          width: 150,
-          editable: true,
+          field: 'workorderNumber',
+          headerName: 'Order N',
+          width: 100,
+          sortable: true,
         },
         {
-          field: 'description',
-          headerName: 'Description',
-          sortable: false,
+          field: 'createdAt',
+          headerName: 'Date de creation',
+          sortable: true,
           width: 200,
-    
         },
-          {
-            field: 'vehicle',
-            headerName: 'vehicule',
-            type: 'text',
-            width: 200,
-            editable: true,
-          },
-          {
-            field: 'plateNumber',
-            headerName: 'Matricule',
-            type: 'text',
-            width: 150,
-            editable: true,
-          },
-          {
-            field: 'price',
-            headerName: 'Prix',
-            sortable: false,
-            width: 150,
-            renderCell: params => formatPrice(params.row.price)
-      
-          },
-          {
-            field: 'status',
-            headerName: 'Status',
-            width: 150,
-            editable: true,
-            renderCell: params => <Chip label={status[params.row.status].faild} color={status[params.row.status].color} variant="outlined" />
-            
-          },
-          {
-            field: 'actions',
-            headerName: 'Actions',
-            type: 'actions',
-            width: 100,
-            getActions: ({id}) => [
-              <GridActionsCellItem icon={<EditIcon />} label="Edit"  />,
-              ///*<GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
-            ],
-          },
-      ];
-      const status = {
-        "E" : {
-            faild : "En attend",
-            color : "default"
+        {
+          field: 'customer',
+          headerName: 'Client',
+          width: 150,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.customer?.label || "N/A";
+          }
         },
-        "C" : {
-            faild : "En cours",
-            color : "error"
+        {
+          // field: 'vehicle',
+          headerName: 'Marque',
+          width: 150,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.brand.label || "N/A";
+          }
         },
-        "T" : {
-            faild : "Cloturé",
-            color : "success"
+       
+        {
+          field: 'vehicle',
+          headerName: 'Matricule',
+          width: 150,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.plateNumber || "N/A";
+          }
         },
-        "F" : {
-            faild : "Facturé",
-            color : "primary"
-        },
-        "P" : {
-            faild : "Facturé",
-            color : "primary"
-        },
-        "D" : {
-            faild : "Facturé",
-            color : "primary"
-        }
-    
-    }  
-
-    const fetchOrders  =  () => api.get(`/${endPoint}?page=all&customerId[eq]=${customerId}`).then((res) =>{ return res});
-
-    const result = useQuery({
-        queryKey: ['orders', customerId],
-        queryFn: () => fetchOrders(),
-        keepPreviousData : true,
-        //enabled: enable,
-    });
-    const { data, isLoading, isError } = result;
-
-    const handelFetchData = (id) => {
         
-        setCustomerId(id);
+        {
+          field: 'currentMileage',
+          headerName: 'Kilometrage',
+          align: 'right', // Alignement du contenu des cellules à droite
+          headerAlign: 'right', // Alignement de l’en-tête à droite
+          width: 100,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return (params.row.currentMileage || 0)+' km';
+          }
+        },
+        {
+          field: 'total',
+          headerName: 'Total',
+          sortable: false,
+          width: 150,
+          align: 'right', // Alignement du contenu des cellules à droite
+          headerAlign: 'right', // Alignement de l’en-tête à droite
+          renderCell: params => formatPrice(calculateTTC(+params.row.total))
+    
+        },
+        {
+          field: 'status',
+          headerName: 'Status',
+          width: 150,
+          align: 'center',
+          headerAlign: 'center',
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return <Badge type='order' status={params?.row?.status} /> ;
+          }
+        },
 
-    }
+        {
+          field: 'actions',
+          headerName: 'Actions',
+          type: 'actions',
+          width: 100,
+          getActions: (params) => [
+            <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
+            <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
+          ],
+        },
+      ];
+
+      
     
 
+      
     
-    
-    const handlEditClick = (id) => {
-        //  navigate('/vehicles');
+    const handlEditClick = (order) => {
+      navigate(`/${endPoint}/${order.id}/${endPointEdit}`);
     }
+
+    const handlShowClick = (order) => {
+      navigate(`/${endPoint}/${order.id}/${endPointShow}`);
+    }
+
   
-   
-   return (
+    if(isLoading){
+      return <CircularIndeterminate />
+  }
+  else if(isError)  {
+      return <p>Error fetching data</p>;
+  }
+   // Render the main content with the DataGrid
+  else return (
             <section >
-                <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] rounded-xl ">
+                <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6 rounded-xl  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] ">
                     <div className="rounded-t mb-0 px-4 py-3 border-0">
                         <div className="flex flex-wrap items-center">
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                              <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Orders</h3>
+                            <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Orders</h3>
                             </div>
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                              <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
+                              <AddButton link={endPointCreate} icon={<AddCircleOutlineIcon />} />
                             </div>
                         </div>
                     </div>
                     {/* <SearchBar handelFetchData={handelFetchData} /> */}
-                    {customerId && 
                         <div className="block w-full overflow-x-auto">
                                 <DataGrid 
                                     columnVisibilityModel={{
@@ -166,7 +165,7 @@ const Orders = () => {
                                     }}
                                     paginationMode="server"
                                     columns={ordersColumns}
-                                    rows={data?.data?.data}
+                                    rows={orders?.data}
                                     initialState={{
                                         pagination: {
                                         paginationModel: {
@@ -174,20 +173,18 @@ const Orders = () => {
                                         },
                                         },
                                     }}
-                                    rowCount={data?.data?.meta?.total}
+                                    rowCount={orders?.meta?.total}
                                     pageSizeOptions={[15, 25, 50, 100]}  
                                     apiRef={apiRef}
                                     onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
                                     //onRowClick={(params) => {handlRowClick(params)}}
                                 />
                             </div>
-                        }
-
                 </div>
             </section>
-                
-    );
+        );
 
+  
 }
 
-export default Orders;
+export default Order;

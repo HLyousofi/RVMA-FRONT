@@ -15,7 +15,7 @@ const useGetQuotes = (page) => {
         queryKey: ['quotes', page],
         queryFn: async () =>{ 
             try{
-            const response =  await api.get(`${endPointQuotes}?page=${page.page}&pageSize=${page.pageSize}?type=quote`);
+            const response =  await api.get(`${endPointQuotes}?page=${page.page}&pageSize=${page.pageSize}&type=quote`);
             return response.data;
             }catch(error){
                 console.error("Erreur API :", error.response?.data || error);

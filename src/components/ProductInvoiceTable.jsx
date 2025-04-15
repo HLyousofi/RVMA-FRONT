@@ -8,7 +8,6 @@ import formatPrice, {calculateTTC} from "../utils/utility";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const QuoteOrderComponent = ({control, watch}) => {
-  const [rows, setRows] = useState([]);
   const [page, setPage] = useState({page : 1, pageSize : 'all'});
   const { data : products, isLoading : isLoadingProducts, isError : fetchProductsError } = useGetProducts(page);
   const { fields, append, remove } = useFieldArray({control,name: "rows"});

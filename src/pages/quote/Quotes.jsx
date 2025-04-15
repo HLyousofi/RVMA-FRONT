@@ -76,9 +76,11 @@ const Quote = () => {
           field: 'status',
           headerName: 'Status',
           width: 150,
+          align: 'center',
+          headerAlign: 'center',
           renderCell: (params) => {
             // Access the nested `label` field
-            return <Badge label={params.row.status} /> ;
+            return <Badge type='quote' status={params.row.status} /> ;
           }
         },
         {
@@ -99,12 +101,6 @@ const Quote = () => {
           ],
         },
       ];
-
-    const status = {
-        draft : 'Brouillon',
-        pending : 'En attente',
-        approved : 'approuvée',
-      }
     
     const handlEditClick = (quote) => {
       navigate(`/${endPoint}/${quote.id}/${endPointEdit}`);
