@@ -83,9 +83,9 @@ export const useUpdateQuote = () => {
 export const useDeleteQuote = () => {
 
     return useMutation({
-        mutationFn : async   (id)  => { 
+        mutationFn : async   ({id})  => { 
             try {
-                const response =  await api.delete(`${endPointQuotes}\\${id}`);
+                const response =  await api.delete(`${endPointQuotes}/${id}`);
                 return response.data;
             }catch (error) {
                 console.error("Erreur API :", error.response?.data || error);

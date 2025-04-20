@@ -6,11 +6,14 @@ import formatPrice from "../../utils/utility";
 import { useQueryClient } from "react-query";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddButton from "../../components/ui/AddButton";
-import useGetQuotes,{useDeleteQuote} from "../../services/QuoteService";
+import useGetQuotes,{useDeleteQuote, downloadQuotePDF} from "../../services/QuoteService";
 import Badge from "../../components/ui/Badge";
 import { useNavigate } from "react-router-dom";
 import { calculateTTC } from "../../utils/utility";
 import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DeleteIcon from '@mui/icons-material/Delete';
+import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -29,6 +32,9 @@ const Quote = () => {
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const { data : workOrder, isLoading, isError } = useGetQuotes(page);
+    const {mutateAsync : deleteQuote} = useDeleteQuote();
+    const {openPopup, setYesAction, setNoAction, setMessage} = usePopup();
+
 
     const quotesColumns = [
         {
@@ -89,17 +95,65 @@ const Quote = () => {
           sortable: true,
           width: 200,
         },
-
         {
           field: 'actions',
           headerName: 'Actions',
           type: 'actions',
-          width: 100,
-          getActions: (params) => [
-            <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
-            <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
-          ],
+          width: 130,
+          getActions: (params) => {
+            const actions = [
+              <GridActionsCellItem
+                key="show"
+                icon={<ContentPasteSearchIcon />}
+                label="Voir"
+                onClick={() => handlShowClick(params.row)}
+              />,
+              <GridActionsCellItem
+                key="pdf"
+                icon={<PictureAsPdfIcon />}
+                label="PDF"
+                 onClick={() => downloadQuote(params.row)}
+              />,
+            ];
+      
+            // Show edit button only for 'draft' status
+            if (params.row.status !== 'approved' ) {
+              actions.push(
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label="Modifier"
+                  onClick={() => handlEditClick(params.row)}
+                />
+              );
+            }
+      
+            // Show delete button only for 'draft' status
+            if (params.row.status === 'draft') {
+              actions.push(
+                <GridActionsCellItem
+                  key="delete"
+                  icon={<DeleteIcon />}
+                  label="Supprimer"
+                  onClick={() => handleDeleteClick(params.row)}
+                />
+              );
+            }
+      
+            return actions;
+          },
         },
+
+        // {
+        //   field: 'actions',
+        //   headerName: 'Actions',
+        //   type: 'actions',
+        //   width: 100,
+        //   getActions: (params) => [
+        //     <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
+        //     <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
+        //   ],
+        // },
       ];
     
     const handlEditClick = (quote) => {
@@ -109,6 +163,36 @@ const Quote = () => {
     const handlShowClick = (quote) => {
       navigate(`/${endPoint}/${quote.id}/${endPointShow}`);
     }
+
+    const downloadQuote = async ({id}) => {
+      try{
+        downloadQuotePDF(id);
+      }catch(error){
+        console.error(error.message);
+      }
+    };
+
+    const handleDeleteClick =  ({id}) => {
+      openPopup();
+      setNoAction(() => () => {});
+      setMessage('Êtes-vous sûr de bien vouloir supprimer ce Devis?')
+      setYesAction(() =>  () => {
+                              try {
+                                   deleteQuote({id},{
+                                      onSuccess : () => {
+                                          apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                          setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
+                                      }
+                                  })
+
+                              } catch(error){
+                                  console.log(error);
+
+                              }
+    })
+
+  
+  };
 
   
     if(isLoading){

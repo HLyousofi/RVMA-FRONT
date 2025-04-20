@@ -11,6 +11,7 @@ import VehicleForm from './pages/vehicle/VehicleForm';
 import ErrorPage from './pages/page-error/page-error';
 import OrderForm from './pages/order/OrderForm';
 import Quotes from './pages/quote/Quotes';
+import InvoiceForm from './pages/invoice/InvoiceForm';
 import Products from './pages/product/Products';
 import ProductForm from './pages/product/ProductForm';
 import QuoteForm from './pages/quote/QuoteForm';
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/orders/:id/edit" element={<OrderForm />} />
                     <Route path="/orders/:id/show" element={<ShowOrder />} />
                     <Route path="/invoices" element={<Invoices />} />
+                    <Route path="/invoices/:id/edit" element={<InvoiceForm />} />
                     <Route path="/quotes" element={<Quotes />} />
                     <Route path="/quotes/create" element={<QuoteForm />} />
                     <Route path="/quotes/:id/edit" element={<QuoteForm />} />

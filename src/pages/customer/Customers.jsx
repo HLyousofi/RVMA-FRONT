@@ -28,7 +28,6 @@ function Customers() {
     const { data : customers, isLoading, isError } = useGetCustomers(page);
     const {mutateAsync : deleteCustomer} = useDeleteCustomer();
 
-    console.log(customers)
     // Define columns for the DataGrid
     const customerColumns = [
         {

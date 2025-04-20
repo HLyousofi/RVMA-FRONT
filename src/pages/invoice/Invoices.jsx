@@ -5,20 +5,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import formatPrice from "../../utils/utility";
 import CircularIndeterminate from "../../components/ui/CircularIndeterminate";
-import useGetInvoices, { useDeleteInvoice } from "../../services/InvoiceService";
+import useGetInvoices, { useDeleteInvoice, downloadInvoicePDF } from "../../services/InvoiceService";
 import usePopup from "../../hooks/usePopup";
-
-import {
-    DataGrid,
-    GridActionsCellItem,
-    useGridApiRef
-  } from '@mui/x-data-grid';
+import Badge from "../../components/ui/Badge";
+import {DataGrid,GridActionsCellItem,useGridApiRef} from '@mui/x-data-grid';
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
 
 
 
 
 function Invoices() {
+    const endPoint = 'invoices';
+    const endPointEdit ='edit';
     const navigate = useNavigate();
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
@@ -27,20 +27,44 @@ function Invoices() {
     const {mutateAsync : deleteInvoice} = useDeleteInvoice();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     const invoiceColumns = [
-        { field: 'id',
-          headerName: 'ID', 
-          width: 90 
+        {
+          field: 'invoiceNumber',
+          headerName: 'Facture N',
+          width: 100,
+          sortable: true,
         },
         {
           field: 'customerName',
-          headerName: 'Name',
+          headerName: 'Client',
           width: 200,
-          editable: true,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.customer?.label || "N/A";
+          }
+        },
+        {
+          // field: 'vehicle',
+          headerName: 'Vehicule',
+          width: 150,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.brand.label || "N/A";
+          }
+        },
+       
+        {
+          field: 'vehicle',
+          headerName: 'Matricule',
+          width: 150,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.plateNumber || "N/A";
+          }
         },
         {
           field: 'amount',
           headerName: 'Montant',
-          width: 200,
+          width: 150,
           editable: true,
           renderCell: params => formatPrice(params.row.amount)
         },
@@ -48,48 +72,104 @@ function Invoices() {
           field: 'billedDate',
           headerName: 'Date de Facturation',
           type: 'date',
-          width: 250,
-          editable: true,
-          valueGetter: ({ value }) => value && new Date(value)
+          width: 100,
+          sortable: true,
+          filterable: true,
+          valueGetter: (params) => params?.value ? new Date(params?.value) : null,
+          valueFormatter: (params) => params?.value ? params?.value.toLocaleDateString('fr-FR') : 'N/A',
         },
         {
           field: 'paidDate',
           headerName: 'Date de Paiement',
-          description: 'This column has a value getter and is not sortable.',
-          type : 'date',
-          sortable: false,
-          width: 160,
-          valueGetter: ({ value }) => value && new Date(value)
-    
+          type: 'date',
+          width: 100,
+          sortable: true,
+          filterable: true,
+          valueGetter: (params) => params?.value ? new Date(params?.value) : null,
+          valueFormatter: (params) => params?.value ? params?.value.toLocaleDateString('fr-FR') : 'N/A',
+        },
+        
+        {
+          field: 'status',
+          headerName: 'Status',
+          width: 150,
+          align: 'center',
+          headerAlign: 'center',
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return <Badge type='order' status={params?.row?.status} /> ;
+          }
         },
         {
-            field: 'status',
-            headerName: 'Status',
-            description: 'This column has a value getter and is not sortable.',
-            sortable: false,
-            width: 160,
-      
+          field: 'actions',
+          headerName: 'Actions',
+          type: 'actions',
+          width: 130,
+          getActions: (params) => {
+            const actions = [
+              <GridActionsCellItem
+                key="show"
+                icon={<ContentPasteSearchIcon />}
+                label="Voir"
+                onClick={() => handleShowClick(params.row)}
+              />,
+              <GridActionsCellItem
+                key="pdf"
+                icon={<PictureAsPdfIcon />}
+                label="PDF"
+                onClick={() => downloadInvoice(params.row)}
+              />,
+            ];
+        
+            // Show edit button only for 'draft' or 'pending' status
+            if (params.row.status === 'draft' || params.row.status === 'pending') {
+              actions.push(
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label="Modifier"
+                  onClick={() => handleEditClick(params.row)}
+                />
+              );
+            }
+        
+            // Show delete button only for 'draft' status
+            if (params.row.status === 'draft') {
+              actions.push(
+                <GridActionsCellItem
+                  key="delete"
+                  icon={<DeleteIcon />}
+                  label="Supprimer"
+                  onClick={() => handleDeleteClick(params.row)}
+                />
+              );
+            }
+        
+            return actions;
           },
-        {
-            field: 'actions',
-            headerName: 'Actions',
-            type: 'actions',
-            width: 100,
-            getActions: ({id}) => [
-              <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick} />,
-              <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />
-            ],
-          },
+        }
       ];
 
 
 
+    const handleShowClick = () => {
 
-    const handlEditClick = (id) => {
-      //  navigate('/vehicles');
+    }
+  
+    const downloadInvoice = async ({id}) => {
+      try{
+        downloadInvoicePDF(id);
+      }catch(error){
+        console.error(error.message);
+      }
+    };
+
+    const handleEditClick = (invoice) => {
+      console.log('📍 Invoices.jsx: invoice:', invoice);
+      navigate(`/${endPoint}/${invoice.id}/${endPointEdit}`);
     }
 
-    const handlDeleteClick =  ({id}) =>{
+    const handleDeleteClick =  ({id}) =>{
         openPopup();
         setMessage('Êtes-vous sûr de bien vouloir supprimer cette Facture');
         setNoAction(() => () => {});

@@ -83,9 +83,9 @@ export const useUpdateOrder = () => {
 export const useDeleteOrder = () => {
 
     return useMutation({
-        mutationFn : async   (id)  => { 
+        mutationFn : async   ({id})  => { 
             try {
-                const response =  await api.delete(`${endPointOrders}\\${id}`);
+                const response =  await api.delete(`${endPointOrders}/${id}`);
                 return response.data;
             }catch (error) {
                 console.error("Erreur API :", error.response?.data || error);
