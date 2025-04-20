@@ -20,8 +20,7 @@ const ShowOrder = () => {
       downloadOrderPDF(id);
     }catch(error){
       console.error(error.message);
-
-  }
+    }
   };
 
   const orderColumns = [

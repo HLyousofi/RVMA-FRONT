@@ -6,11 +6,14 @@ import formatPrice from "../../utils/utility";
 import { useQueryClient } from "react-query";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddButton from "../../components/ui/AddButton";
-import useGetOrders,{useDeleteOrder} from "../../services/OrderService";
+import useGetOrders,{useDeleteOrder, downloadOrderPDF} from "../../services/OrderService";
 import Badge from "../../components/ui/Badge";
 import { useNavigate } from "react-router-dom";
 import { calculateTTC } from "../../utils/utility";
 import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DeleteIcon from '@mui/icons-material/Delete';
+import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -29,12 +32,10 @@ const Order = () => {
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const { data : orders, isLoading, isError } = useGetOrders(page);
+    const {mutateAsync : deleteOrder} = useDeleteOrder();
+    const {openPopup, setYesAction, setNoAction, setMessage} = usePopup();
 
-    const status = {
-      pending : 'En attente',
-      in_progress : 'En Cours',
-      completed : 'Terminer',
-    }
+   
 
     const ordersColumns = [
         {
@@ -83,7 +84,7 @@ const Order = () => {
           headerName: 'Kilometrage',
           align: 'right', // Alignement du contenu des cellules à droite
           headerAlign: 'right', // Alignement de l’en-tête à droite
-          width: 100,
+          width: 80,
           renderCell: (params) => {
             // Access the nested `label` field
             return (params.row.currentMileage || 0)+' km';
@@ -102,7 +103,7 @@ const Order = () => {
         {
           field: 'status',
           headerName: 'Status',
-          width: 150,
+          width: 120,
           align: 'center',
           headerAlign: 'center',
           renderCell: (params) => {
@@ -110,24 +111,74 @@ const Order = () => {
             return <Badge type='order' status={params?.row?.status} /> ;
           }
         },
-
         {
           field: 'actions',
           headerName: 'Actions',
           type: 'actions',
-          width: 100,
-          getActions: (params) => [
-            <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
-            <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
-          ],
+          width: 130,
+          getActions: (params) => {
+            const actions = [
+              <GridActionsCellItem
+                key="show"
+                icon={<ContentPasteSearchIcon />}
+                label="Voir"
+                onClick={() => handlShowClick(params.row)}
+              />,
+              <GridActionsCellItem
+                key="pdf"
+                icon={<PictureAsPdfIcon />}
+                label="PDF"
+                 onClick={() => downloadOrder(params.row)}
+              />,
+            ];
+      
+            // Show edit button only for 'draft' status
+            if (params.row.status !== 'completed' && params.row.status !== 'to_invoice' ) {
+              actions.push(
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label="Modifier"
+                  onClick={() => handlEditClick(params.row)}
+                />
+              );
+            }
+      
+            // Show delete button only for 'draft' status
+            if (params.row.status === 'draft') {
+              actions.push(
+                <GridActionsCellItem
+                  key="delete"
+                  icon={<DeleteIcon />}
+                  label="Supprimer"
+                  onClick={() => handleDeleteClick(params.row)}
+                />
+              );
+            }
+      
+            return actions;
+          },
         },
+
+        // {
+        //   field: 'actions',
+        //   headerName: 'Actions',
+        //   type: 'actions',
+        //   width: 100,
+        //   getActions: (params) => [
+        //     <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
+        //     <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
+        //   ],
+        // },
       ];
 
-      
-    
-
-      
-    
+      const downloadOrder = async ({id}) => {
+        try{
+          downloadOrderPDF(id);
+        }catch(error){
+          console.error(error.message);
+        }
+      };
     const handlEditClick = (order) => {
       navigate(`/${endPoint}/${order.id}/${endPointEdit}`);
     }
@@ -135,6 +186,28 @@ const Order = () => {
     const handlShowClick = (order) => {
       navigate(`/${endPoint}/${order.id}/${endPointShow}`);
     }
+
+    const handleDeleteClick =  ({id}) => {
+      openPopup();
+      setNoAction(() => () => {});
+      setMessage('Êtes-vous sûr de bien vouloir supprimer cet Order?')
+      setYesAction(() =>  () => {
+                              try {
+                                   deleteOrder({id},{
+                                      onSuccess : () => {
+                                          apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                          setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
+                                      }
+                                  })
+
+                              } catch(error){
+                                  console.log(error);
+
+                              }
+    })
+
+  
+  };
 
   
     if(isLoading){
