@@ -8,6 +8,9 @@ const Badge = ({ status }) => {
       completed: 'bg-green-300 text-green-800 dark:bg-green-900 dark:text-green-300', // Approuvé
       to_invoice: 'bg-orange-300 text-orange-800 dark:bg-orange-900 dark:text-orange-300', // Approuvé
       rejected: 'bg-red-300 text-red-800 dark:bg-red-900 dark:text-red-300', // Rejeté
+      issued: 'bg-purple-300 text-purple-800 dark:bg-purple-900 dark:text-purple-300', 
+      paid: 'bg-green-300 text-green-800 dark:bg-green-900 dark:text-green-300',
+
     };
   
     // Translate English statuss to French
@@ -16,6 +19,8 @@ const Badge = ({ status }) => {
       pending: 'En attente',
       approved: 'Approuvé',
       rejected: 'Rejeté',
+      paid: 'Payé',
+      issued : 'Emis',
       in_progress : 'En Cours',
       completed : 'Terminer',
       to_invoice : 'Facturé'
