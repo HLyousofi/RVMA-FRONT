@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import formatPrice from "../../utils/utility";
 import CircularIndeterminate from "../../components/ui/CircularIndeterminate";
@@ -11,14 +10,14 @@ import Badge from "../../components/ui/Badge";
 import {DataGrid,GridActionsCellItem,useGridApiRef} from '@mui/x-data-grid';
 import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-
-
+import dayjs from 'dayjs';
 
 
 
 function Invoices() {
     const endPoint = 'invoices';
     const endPointEdit ='edit';
+    const endPointShow ='show';
     const navigate = useNavigate();
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
@@ -36,7 +35,9 @@ function Invoices() {
         {
           field: 'customerName',
           headerName: 'Client',
-          width: 200,
+          width: 150,
+          sortable: true,
+          filterable: true,
           renderCell: (params) => {
             // Access the nested `label` field
             return params.row.customer?.label || "N/A";
@@ -45,7 +46,9 @@ function Invoices() {
         {
           // field: 'vehicle',
           headerName: 'Vehicule',
-          width: 150,
+          width: 130,
+          sortable: true,
+          filterable: true,
           renderCell: (params) => {
             // Access the nested `label` field
             return params.row.vehicle?.brand.label || "N/A";
@@ -56,6 +59,8 @@ function Invoices() {
           field: 'vehicle',
           headerName: 'Matricule',
           width: 150,
+          sortable: true,
+          filterable: true,
           renderCell: (params) => {
             // Access the nested `label` field
             return params.row.vehicle?.plateNumber || "N/A";
@@ -63,41 +68,44 @@ function Invoices() {
         },
         {
           field: 'amount',
-          headerName: 'Montant',
+          headerName: 'Montant HT',
           width: 150,
-          editable: true,
+          sortable: true,
+          filterable: true,
           renderCell: params => formatPrice(params.row.amount)
         },
         {
           field: 'billedDate',
           headerName: 'Date de Facturation',
           type: 'date',
-          width: 100,
+          width: 150,
           sortable: true,
           filterable: true,
-          valueGetter: (params) => params?.value ? new Date(params?.value) : null,
-          valueFormatter: (params) => params?.value ? params?.value.toLocaleDateString('fr-FR') : 'N/A',
+          valueFormatter: (params) => 
+            params ? dayjs(params).format('DD/MM/YYYY') : 'N/A',
         },
         {
           field: 'paidDate',
           headerName: 'Date de Paiement',
-          type: 'date',
-          width: 100,
+          width: 150,
           sortable: true,
           filterable: true,
-          valueGetter: (params) => params?.value ? new Date(params?.value) : null,
-          valueFormatter: (params) => params?.value ? params?.value.toLocaleDateString('fr-FR') : 'N/A',
+          valueFormatter: (params) => {
+            return params ? dayjs(params).format('DD/MM/YYYY') : 'N/A';
+          }
         },
         
         {
           field: 'status',
           headerName: 'Status',
           width: 150,
+          sortable: true,
+          filterable: true,
           align: 'center',
           headerAlign: 'center',
           renderCell: (params) => {
             // Access the nested `label` field
-            return <Badge type='order' status={params?.row?.status} /> ;
+            return <Badge type='invoice' status={params?.row?.status} /> ;
           }
         },
         {
@@ -120,19 +128,6 @@ function Invoices() {
                 onClick={() => downloadInvoice(params.row)}
               />,
             ];
-        
-            // Show edit button only for 'draft' or 'pending' status
-            if (params.row.status === 'draft' || params.row.status === 'pending') {
-              actions.push(
-                <GridActionsCellItem
-                  key="edit"
-                  icon={<EditIcon />}
-                  label="Modifier"
-                  onClick={() => handleEditClick(params.row)}
-                />
-              );
-            }
-        
             // Show delete button only for 'draft' status
             if (params.row.status === 'draft') {
               actions.push(
@@ -150,10 +145,8 @@ function Invoices() {
         }
       ];
 
-
-
-    const handleShowClick = () => {
-
+    const handleShowClick = (invoice) => {
+      navigate(`/${endPoint}/${invoice.id}/${endPointShow}`);
     }
   
     const downloadInvoice = async ({id}) => {
@@ -163,11 +156,6 @@ function Invoices() {
         console.error(error.message);
       }
     };
-
-    const handleEditClick = (invoice) => {
-      console.log('📍 Invoices.jsx: invoice:', invoice);
-      navigate(`/${endPoint}/${invoice.id}/${endPointEdit}`);
-    }
 
     const handleDeleteClick =  ({id}) =>{
         openPopup();
@@ -205,9 +193,6 @@ function Invoices() {
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1">
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Factures</h3>
                                 </div>
-                                {/* <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                <button className="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">See all</button>
-                                </div> */}
                             </div>
                         </div>
                         <div className="block w-full overflow-x-auto">

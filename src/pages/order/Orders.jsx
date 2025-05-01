@@ -14,6 +14,7 @@ import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DeleteIcon from '@mui/icons-material/Delete';
 import usePopup from "../../hooks/usePopup";
+import dayjs from 'dayjs';
 import {
     DataGrid,
     GridActionsCellItem,
@@ -48,7 +49,10 @@ const Order = () => {
           field: 'createdAt',
           headerName: 'Date de creation',
           sortable: true,
-          width: 200,
+          type: 'date',
+          width: 150,
+          valueFormatter: (params) => 
+            params ? dayjs(params).format('DD/MM/YYYY') : 'N/A',
         },
         {
           field: 'customer',
@@ -84,7 +88,7 @@ const Order = () => {
           headerName: 'Kilometrage',
           align: 'right', // Alignement du contenu des cellules à droite
           headerAlign: 'right', // Alignement de l’en-tête à droite
-          width: 80,
+          width: 120,
           renderCell: (params) => {
             // Access the nested `label` field
             return (params.row.currentMileage || 0)+' km';
