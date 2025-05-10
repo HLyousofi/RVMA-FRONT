@@ -18,11 +18,7 @@ const ProductForm = ({product, handleCloseDialog}) => {
 
     const {mutateAsync : addProduct} = usePostProduct();
     const {mutateAsync : updateProduct} = useUpdateProduct();
-    const {  
-        handleSubmit,
-        control,
-        reset, watch } = useForm();
-
+    const { handleSubmit, control, reset, watch } = useForm();
     const queryClient = useQueryClient();
     const {setAlert} = useAlert();
     const endPointCategories = 'categories';
@@ -122,7 +118,7 @@ const ProductForm = ({product, handleCloseDialog}) => {
                     }
                     
             }  
-}
+    }
 
 
     return (

@@ -7,6 +7,8 @@ import ResetButton from '../../components/ui/ResetButton';
 import InputField from '../../components/ui/InpuField';
 import { useForm } from "react-hook-form";
 import CheckboxField from '../../components/ui/CheckboxField';
+import { useQuery, useQueryClient  } from "react-query";
+
 
 
 
@@ -21,6 +23,8 @@ const CustomerForm = () => {
     const location = useLocation();
     const {mutateAsync : addCustomer} = usePostCustomer();
     const {mutateAsync : updateCustomer} = useUpdateCustomer();
+    const queryClient = useQueryClient();
+
     
     const {  
         handleSubmit,
@@ -75,6 +79,7 @@ const CustomerForm = () => {
                 try{
                     await updateCustomer({id, customer},{
                                                     onSuccess : async () => {
+                                                        queryClient.invalidateQueries(["customers"]); 
                                                         navigate('/customers');
                                                         setAlert({
                                                                     active  : true, 
@@ -97,6 +102,7 @@ const CustomerForm = () => {
                 await addCustomer({customer},{
                     onSuccess : async () => {
                                                     navigate('/customers');
+                                                    queryClient.invalidateQueries(["customers"]);
                                                     setAlert({
                                                     active  : true, 
                                                     type    : "success", 

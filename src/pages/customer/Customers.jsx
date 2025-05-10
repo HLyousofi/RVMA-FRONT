@@ -9,11 +9,7 @@ import useGetCustomers, { useDeleteCustomer } from "../../services/CustomerServi
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
-import {
-    DataGrid,
-    GridActionsCellItem,
-    useGridApiRef
-  } from '@mui/x-data-grid';
+import {DataGrid, GridActionsCellItem, useGridApiRef } from '@mui/x-data-grid';
 
 // Define the functional component Customers
 function Customers() {
@@ -69,24 +65,16 @@ function Customers() {
             ],
           },
       ];
-  
-     
     const handlEditClick = (customer) => {
-    
         navigate(`/${endPoint}/${endPointEdit}`, {state : customer});
     }
-
 
     const handlRowClick = (params) => {
         console.log(params.row.id);
 
 
     }
-
-
     const handleDeleteClick =  ({id}) => {
-      
-        
         openPopup();
         setNoAction(() => () => {});
         setMessage('Êtes-vous sûr de bien vouloir supprimer ce Client?')
@@ -104,8 +92,6 @@ function Customers() {
 
                                 }
       })
-
-    
     };
     
 
@@ -118,7 +104,6 @@ function Customers() {
     }
      // Render the main content with the DataGrid
     else return (
-        
             <section >
                     <div className="relative flex flex-col  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] min-w-0 break-words  dark:bg-gray-800 w-full mb-6  rounded-xl ">
                         <div className="rounded-t mb-0 px-4 py-3 border-0 ">

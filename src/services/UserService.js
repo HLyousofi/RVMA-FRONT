@@ -10,11 +10,18 @@ const endPointUsers = '/users';
 
 
 const useGetUsers = (page) => {
-
     return useQuery({
         queryKey: ['users', page],
-        queryFn: async () => {return await api.get(`${endPointUsers}?page=${page.page}&pageSize=${page.pageSize}`)},
-        keepPreviousData : true
+        queryFn: async () =>{ 
+            try{
+            const response =  await api.get(`${endPointUsers}?page=${page.page}&pageSize=${page.pageSize}`);
+            return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        },
+        keepPreviousData : true,
     });
 
 }
@@ -25,19 +32,35 @@ export const usePostUser = () => {
     
 
     return useMutation({
-        mutationFn : async (user) => { return await api.post(endPointUsers, user);}
+        mutationFn: async ({ userData }) => {
+            try {
+                const response = await api.post(endPointUsers, userData);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
 
     });
 
 }
 
 export const useUpdateUser = () => {
+    return useMutation({
+        mutationFn: async ({ userId, userData }) => {
+            try {
+                const response = await api.patch(`${endPointUsers}/${userId}`, userData);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
+    });
     
 
-    return useMutation({
-        mutationFn : async  ({id, user}) => { return   await api.patch(`${endPointUsers}\\${id}`, user);}
-
-    });
+   
 
 }
 
@@ -45,6 +68,14 @@ export const useUpdateUser = () => {
 export const useDeleteUser = () => {
 
     return useMutation({
-        mutationFn : async (id) => {return await api.delete(`${endPointUsers}\\${id}`)}
-    })
+        mutationFn : async   ({id})  => { 
+            try {
+                const response =  await api.delete(`${endPointUsers}\\${id}`);
+                return response.data;
+            }catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+
+            }
+    }}) 
 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
@@ -8,11 +7,7 @@ import useGetProducts,{useDeleteProduct} from "../../services/ProductService";
 import usePopup from "../../hooks/usePopup";
 import  Dialog  from '../../components/Dialog';
 import useDialog from "../../hooks/useDialog";
-import {
-    DataGrid,
-    GridActionsCellItem,
-    useGridApiRef
-  } from '@mui/x-data-grid';
+import {DataGrid, GridActionsCellItem, useGridApiRef} from '@mui/x-data-grid';
 import ProductForm from "./ProductForm";
 import { Button } from "@mui/material";
 
@@ -22,7 +17,6 @@ import { Button } from "@mui/material";
 function Products() {
     // Initialize state and variables
     const {setAlert} = useAlert();
-    const endPoint = 'products';
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='productform';
     const apiRef = useGridApiRef();
@@ -94,8 +88,6 @@ function Products() {
     const handlEditClick = (product) => {
       setProduct(product);
       openDialog();
-        // navigate(`/${endPoint}/${endPointEdit}`, {state : vehicle});
-        
     }
 
     const closeDialogForm = () => {

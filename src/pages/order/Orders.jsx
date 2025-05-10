@@ -43,11 +43,13 @@ const Order = () => {
           field: 'workorderNumber',
           headerName: 'Order N',
           width: 100,
+          flex: 1,
           sortable: true,
         },
         {
           field: 'createdAt',
           headerName: 'Date de creation',
+          flex: 1,
           sortable: true,
           type: 'date',
           width: 150,
@@ -57,6 +59,7 @@ const Order = () => {
         {
           field: 'customer',
           headerName: 'Client',
+          flex: 1,
           width: 150,
           renderCell: (params) => {
             // Access the nested `label` field
@@ -66,6 +69,7 @@ const Order = () => {
         {
           // field: 'vehicle',
           headerName: 'Marque',
+          flex: 1,
           width: 150,
           renderCell: (params) => {
             // Access the nested `label` field
@@ -76,6 +80,7 @@ const Order = () => {
         {
           field: 'vehicle',
           headerName: 'Matricule',
+          flex: 1,
           width: 150,
           renderCell: (params) => {
             // Access the nested `label` field
@@ -86,6 +91,7 @@ const Order = () => {
         {
           field: 'currentMileage',
           headerName: 'Kilometrage',
+          flex: 1,
           align: 'right', // Alignement du contenu des cellules à droite
           headerAlign: 'right', // Alignement de l’en-tête à droite
           width: 120,
@@ -97,6 +103,7 @@ const Order = () => {
         {
           field: 'total',
           headerName: 'Total',
+          flex: 1,
           sortable: false,
           width: 150,
           align: 'right', // Alignement du contenu des cellules à droite
@@ -107,6 +114,7 @@ const Order = () => {
         {
           field: 'status',
           headerName: 'Status',
+          flex: 1,
           width: 120,
           align: 'center',
           headerAlign: 'center',
@@ -118,6 +126,7 @@ const Order = () => {
         {
           field: 'actions',
           headerName: 'Actions',
+          flex: 1,
           type: 'actions',
           width: 130,
           getActions: (params) => {

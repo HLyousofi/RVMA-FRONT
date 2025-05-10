@@ -40,6 +40,7 @@ const Quote = () => {
         {
           field: 'workorderNumber',
           headerName: 'Nomber',
+          flex: 1,
           width: 100,
           sortable: true,
         },
@@ -47,11 +48,13 @@ const Quote = () => {
           field: 'createdAt',
           headerName: 'Date de creation',
           sortable: true,
+          flex: 1,
           width: 200,
         },
         {
           field: 'customer',
           headerName: 'Client',
+          flex: 1,
           width: 150,
           renderCell: (params) => {
             // Access the nested `label` field
@@ -62,6 +65,7 @@ const Quote = () => {
           field: 'vehicle',
           headerName: 'Vehicle',
           type: 'text',
+          flex: 1,
           width: 150,
           renderCell: (params) => {
             // Access the nested `label` field
@@ -73,6 +77,7 @@ const Quote = () => {
           headerName: 'Total',
           sortable: false,
           width: 150,
+          flex: 1,
           align: 'right', // Alignement du contenu des cellules à droite
           headerAlign: 'right', // Alignement de l’en-tête à droite
           renderCell: params => formatPrice(calculateTTC(+params.row.total))
@@ -82,6 +87,7 @@ const Quote = () => {
           field: 'status',
           headerName: 'Status',
           width: 150,
+          flex: 1,
           align: 'center',
           headerAlign: 'center',
           renderCell: (params) => {
@@ -93,12 +99,14 @@ const Quote = () => {
           field: 'expirationDate',
           headerName: 'Date de d\'experation',
           sortable: true,
+          flex: 1,
           width: 200,
         },
         {
           field: 'actions',
           headerName: 'Actions',
           type: 'actions',
+          flex: 1,
           width: 130,
           getActions: (params) => {
             const actions = [

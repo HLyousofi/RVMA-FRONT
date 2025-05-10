@@ -32,6 +32,7 @@ const QuoteForm = () => {
     const { data : vehicles, isLoading : isLoadingVehicles, isError : fetchVehiclesError} = useGetVehicles(page);
 
     useEffect(() => {
+        console.log('📍 QuoteForm.jsx: workOrder:', workOrder);
         if (id && workOrder) {
           reset({
             customer: workOrder.data.customer || '',
