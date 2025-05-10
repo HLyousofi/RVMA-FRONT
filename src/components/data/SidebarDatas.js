@@ -41,16 +41,16 @@ import TuneIcon from '@mui/icons-material/Tune';
         icon : <StoreIcon />,
         link : "products"
     },
-    {
-        title : "Fournisseur",
-        icon : <FactoryOutlinedIcon />,
-        link : "supplier"
-    },
-    {
-        title : "Transaction",
-        icon : <LocalShippingOutlinedIcon />,
-        link : "transaction"
-    },
+    // {
+    //     title : "Fournisseur",
+    //     icon : <FactoryOutlinedIcon />,
+    //     link : "supplier"
+    // },
+    // {
+    //     title : "Transaction",
+    //     icon : <LocalShippingOutlinedIcon />,
+    //     link : "transaction"
+    // },
     {
         title : "Parametre",
         icon : <TuneIcon />,

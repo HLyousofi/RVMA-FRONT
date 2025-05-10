@@ -29,12 +29,14 @@ function Invoices() {
         {
           field: 'invoiceNumber',
           headerName: 'Facture N',
+          flex: 1,
           width: 100,
           sortable: true,
         },
         {
           field: 'customerName',
           headerName: 'Client',
+          flex: 1,
           width: 150,
           sortable: true,
           filterable: true,
@@ -47,6 +49,7 @@ function Invoices() {
           // field: 'vehicle',
           headerName: 'Vehicule',
           width: 130,
+          flex: 1,
           sortable: true,
           filterable: true,
           renderCell: (params) => {
@@ -59,6 +62,7 @@ function Invoices() {
           field: 'vehicle',
           headerName: 'Matricule',
           width: 150,
+          flex: 1,
           sortable: true,
           filterable: true,
           renderCell: (params) => {
@@ -70,6 +74,7 @@ function Invoices() {
           field: 'amount',
           headerName: 'Montant HT',
           width: 150,
+          flex: 1,
           sortable: true,
           filterable: true,
           renderCell: params => formatPrice(params.row.amount)
@@ -78,6 +83,7 @@ function Invoices() {
           field: 'billedDate',
           headerName: 'Date de Facturation',
           type: 'date',
+          flex: 1,
           width: 150,
           sortable: true,
           filterable: true,
@@ -88,6 +94,7 @@ function Invoices() {
           field: 'paidDate',
           headerName: 'Date de Paiement',
           width: 150,
+          flex: 1,
           sortable: true,
           filterable: true,
           valueFormatter: (params) => {
@@ -100,6 +107,7 @@ function Invoices() {
           headerName: 'Status',
           width: 150,
           sortable: true,
+          flex: 1,
           filterable: true,
           align: 'center',
           headerAlign: 'center',
@@ -113,6 +121,7 @@ function Invoices() {
           headerName: 'Actions',
           type: 'actions',
           width: 130,
+          flex: 1,
           getActions: (params) => {
             const actions = [
               <GridActionsCellItem
