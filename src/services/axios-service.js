@@ -1,17 +1,14 @@
 import axios from "axios";
-import { Navigate } from "react-router-dom";
 
-
-
+console.log('📍 axios-service.js: baseURL:', process.env.REACT_APP_API_URL);
 const axiosClient = axios.create({
-    baseURL : "http://127.0.0.1:8000/api/v1"
+    baseURL : process.env.REACT_APP_API_URL
 });
 
 axiosClient.interceptors.request.use((config) =>{
     const token = localStorage.getItem('apiToken');
     config.headers.Authorization = `Bearer ${token} `
     return config
-
 })
 
 axiosClient.interceptors.response.use((response) => {

@@ -22,7 +22,7 @@ function Invoices() {
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const {setAlert} = useAlert();
-    const { data , isLoading, isError } = useGetInvoices(page);
+    const { data : invoices, isLoading, isError } = useGetInvoices(page);
     const {mutateAsync : deleteInvoice} = useDeleteInvoice();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     const invoiceColumns = [
@@ -208,7 +208,7 @@ function Invoices() {
                             <DataGrid 
                                 paginationMode="server"
                                 columns={invoiceColumns}
-                                rows={data?.data?.data}
+                                rows={invoices?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
@@ -218,7 +218,7 @@ function Invoices() {
                                   }}
                                   apiRef={apiRef}
                                   onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
-                                  rowCount={data?.data?.meta?.total}
+                                  rowCount={invoices?.meta?.total}
                                   pageSizeOptions={[15, 25, 50, 100]}  
                                   
                                />

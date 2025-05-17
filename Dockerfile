@@ -1,21 +1,15 @@
 
-# Utiliser une image Node.js
-FROM node:20
-
-# Définir le répertoire de travail
+# Étape de construction
+FROM node:20-alpine AS build
 WORKDIR /app
-
-# Copier les fichiers package.json et package-lock.json (ou yarn.lock)
-COPY package*.json ./
-
-# Installer les dépendances
-RUN npm install
-
-# Copier le reste des fichiers
+COPY package.json package-lock.json ./
+RUN npm install --production
 COPY . .
+RUN npm run build
 
-# Exposer le port (par exemple, 3000 pour React)
-EXPOSE 3000
-
-# Commande pour démarrer l'application en mode développement
-CMD ["npm", "start"]
+# Étape de production
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
