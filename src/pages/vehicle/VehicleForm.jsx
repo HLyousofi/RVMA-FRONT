@@ -10,9 +10,7 @@ import { useForm } from "react-hook-form";
 import { usePostVehicle, useUpdateVehicle } from '../../services/VehicleService';
 import { useQuery, useQueryClient  } from "react-query";
 import { useGetCustomersNames } from '../../services/CustomerService';
-
-
-
+import useGetFuelTypes from '../../services/FuelTypeService';
 
 const VehicleForm = () => {
 
@@ -22,30 +20,22 @@ const VehicleForm = () => {
 
     const {mutateAsync : addVehicle} = usePostVehicle();
     const {mutateAsync : updateVehicle} = useUpdateVehicle();
+
     const queryClient = useQueryClient();
-
-
-    const {  
-        handleSubmit,
-        control,
-        reset, watch } = useForm();
+    const { handleSubmit, control, reset, watch } = useForm();
     
     const { data : customers, isLoading : isLoadingCustomers, isError } = useGetCustomersNames();
+    const { data : fuelTypes, isLoading : isLoadingFuelTypes, isError : fuelTypesError } = useGetFuelTypes();
+
 
 
     const navigate = useNavigate();
     const location = useLocation();
     const {setAlert} = useAlert();
-    const endPoint = 'vehicles';
-    const endPointCustomer = 'customers';
-    const endPointFuelTypes = "fueltypes";
     const endPointCarBrands = "carBrands";
 
 
-    const fetchFuelTypes  =  async () =>{  
-        const response = await api.get(`/${endPointFuelTypes}`);
-        return response.data;
-    }
+  
     const fetchCarBrands  =  async () =>{  
         const response = await api.get(`/${endPointCarBrands}`);
         return response.data;
@@ -74,34 +64,20 @@ const VehicleForm = () => {
 
     useEffect(() => {
 
+
         fetchDataForm();
     },[])
 
-    
-
-    // Fetch fuel types data
-    const { data: fuelTypes, isLoading: isLoadingFuelTypes, isError: isErrorFuelTypes } = useQuery({
-        queryKey: ['fuelTypes'],
-        queryFn: fetchFuelTypes, // Pass the function reference
-        keepPreviousData: true,
-    });
 
     const { data: carBrands, isLoading: isLoadingCarBrands, isError: isErrorCarBrands } = useQuery({
         queryKey: ['carBrands'],
         queryFn: fetchCarBrands, // Pass the function reference
         keepPreviousData: true,
     });
-    
-   
-
 
 
     const onSubmit = async (data) => {
         // Validation checks before submitting the form
-       
-        
-        let response;
-       
         const vehicle = {
             customerId : data?.customer?.id,
             brand : data?.brand.id,

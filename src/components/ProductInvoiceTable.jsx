@@ -135,7 +135,7 @@ const QuoteOrderComponent = ({control, watch}) => {
         <tfoot>
           <tr className="font-semibold text-gray-900 dark:text-white">
             <td className="px-6 py-3" colSpan="2"></td>
-            <td className="px-6 py-3 text-base text-right">Montant hors taxes:</td>
+            <td className="px-6 py-3 text-base text-right">Montant HT:</td>
             <td className="px-6 py-3 text-base text-right">{formatPrice(subtotal)}</td>
           </tr>
           <tr className="font-semibold text-gray-900 dark:text-white">
@@ -145,7 +145,7 @@ const QuoteOrderComponent = ({control, watch}) => {
           </tr>
           <tr className="font-semibold text-gray-900 dark:text-white">
             <td className="px-6 py-3" colSpan="2"></td>
-            <td className="px-6 py-3 text-base text-right">Total :</td>
+            <td className="px-6 py-3 text-base text-right">Total TTC :</td>
             <td className="px-6 py-3 text-base text-right">{totalWithTax}</td>
           </tr>
         </tfoot>
