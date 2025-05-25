@@ -17,7 +17,6 @@ import InputField from '../../components/ui/InpuField';
 
 const InvoiceForm = () => {
  
-    const {mutateAsync : addInvoice} = usePostInvoice();
     const {mutateAsync : updateInvoice} = useUpdateInvoice();
     const {id} = useParams();
     const [page, setPage] = useState({page : 1, pageSize : 'all'});
