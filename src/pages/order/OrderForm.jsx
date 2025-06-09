@@ -37,6 +37,7 @@ const OrderForm = () => {
             customer: workOrder.data.customer || '',
             vehicle: workOrder.data.vehicle || '',
             expirationDate: workOrder.data.expirationDate ,
+            currentMileage : workOrder.data.currentMileage,
             rows: workOrder.data.products
               ? workOrder.data.products.map((p) => ({
                   product : { id: p.id, label: p.name },
@@ -55,7 +56,7 @@ const OrderForm = () => {
             customerId: formData.customer.id,
             vehicleId: formData.vehicle.id,
             currentMileage :formData?.currentMileage ?? 0,
-            status : workOrder?.data?.status ?? 'draft',
+            status : workOrder?.data?.status ?? 'pending',
             type : "order",
             productsWorkOrder: formData.rows.map(row => ({
                 productId: row.product.id,
