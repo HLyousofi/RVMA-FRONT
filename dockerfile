@@ -18,9 +18,8 @@ FROM nginx:alpine
 RUN apk add --no-cache curl
 # Copier les fichiers buildés
 COPY --from=build /app/build /usr/share/nginx/html
-# Copier la configuration Nginx
-COPY nginx.demo.conf /etc/nginx/conf.d/default.conf
-# Exposer les ports HTTP et HTTPS
-EXPOSE 80 443
+
+# Exposer le port 8080 nginx 
+EXPOSE 8080 8082
 # Lancer Nginx
 CMD ["nginx", "-g", "daemon off;"]
