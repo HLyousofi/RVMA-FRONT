@@ -104,7 +104,6 @@ function Vehicles() {
         return api.delete(`/${endPoint}/${id}`);
     });
 
-console.log(vehicles)
     const handleDeleteClick =  ({id}) => {
             openPopup();
             setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
@@ -131,7 +130,7 @@ console.log(vehicles)
     if(isLoading){
         return <CircularIndeterminate />
     }
-    else if(isError)  {
+    else if(isError )  {
         return <p>Error fetching data</p>;
     }
      // Render the main content with the DataGrid
