@@ -11,7 +11,7 @@ RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 COPY . .
 # Construire l'application
 RUN npm run build
-
+ 
 # Étape de production
 FROM nginx:alpine
 # Installer des outils pour gérer les certificats si nécessaire
