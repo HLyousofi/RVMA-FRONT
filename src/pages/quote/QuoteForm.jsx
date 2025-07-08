@@ -32,7 +32,6 @@ const QuoteForm = () => {
     const { data : vehicles, isLoading : isLoadingVehicles, isError : fetchVehiclesError} = useGetVehicles(page);
 
     useEffect(() => {
-        console.log('📍 QuoteForm.jsx: workOrder:', workOrder);
         if (id && workOrder) {
           reset({
             customer: workOrder.data.customer || '',
@@ -125,7 +124,6 @@ const QuoteForm = () => {
     // Watch the selected customer
     const selectedCustomer = watch("customer");
 
-    const selectedVehicle = watch("vehicle");
 
       // Filter vehicles based on the selected customer
       const filteredVehicles = vehicles?.data?.filter(
@@ -140,49 +138,50 @@ const QuoteForm = () => {
     }
      // Render the main content with the DataGrid
     else  return (
-        <div className="w-full h-full  bg-white dark:bg-gray-800 rounded">
-        <div className="px-6 py-6 lg:px-8">
-            <h3 className="mb-4 text-xl font-medium text-gray-700 dark:text-gray-300"> Devis : { workOrder ? workOrder.data.workorderNumber : 'Nouveau'  }</h3>
-            <form className="space-y-16" onSubmit={handleSubmit(onSubmit)}>
-                <div className="grid gap-x-96 gap-y-3 grid-cols-2 md:grid-cols-2 ">
+        <div className="w-full h-full bg-white dark:bg-gray-800 rounded">
+        <div className="px-4 py-4 sm:px-6 lg:px-8">
+            <h3 className="mb-4 text-lg sm:text-xl font-medium text-gray-700 dark:text-gray-300">
+                Devis : {workOrder ? workOrder.data.workorderNumber : 'Nouveau'}
+            </h3>
+            <form className="space-y-8 sm:space-y-12" onSubmit={handleSubmit(onSubmit)}>
+                <div className="grid gap-x-32 gap-y-4 grid-cols-1 sm:grid-cols-2">
                     <AutocompleteField
-                        name="customer" 
-                        options={customers?.data} 
+                        name="customer"
+                        options={customers?.data}
                         control={control}
-                        isLoading={isLoadingCustomers.toString()} 
+                        isLoading={isLoadingCustomers.toString()}
                         label="Client"
                         variant="standard"
                         rules={{
                             required: 'Customer is required',
-                            }}
+                        }}
                     />
-                    <DatePickerField   
-                        name="expirationDate" 
+                    <DatePickerField
+                        name="expirationDate"
                         label="Expiration"
                         control={control}
-                        rules={{ required: "La date est requise"}}
+                        rules={{ required: "La date est requise" }}
                     />
-                    
                     <AutocompleteField
-                        name="vehicle" 
-                        options={filteredVehicles} 
+                        name="vehicle"
+                        options={filteredVehicles}
                         control={control}
-                        isLoading={isLoadingVehicles.toString()} 
+                        isLoading={isLoadingVehicles.toString()}
                         label="Véhicule"
                         variant="standard"
                         rules={{
                             required: 'Vehicle is required',
-                            }}
+                        }}
                     />
                 </div>
                 <QuoteOrderComponent control={control} watch={watch} />
-                <div className=" flex justify-end mt-4 gap-2">
-                    <ResetButton  />
+                <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2">
+                    <ResetButton />
                     <SaveButton />
                 </div>
             </form>
-         </div>
         </div>
+    </div>
     )
 };
 

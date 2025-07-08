@@ -34,7 +34,7 @@ export default function Layout() {
                     <Outlet />
                 </main> */}
                 <main className={`min-h-screen pt-20 w-full px-1  ${
-                    isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0"
+                    isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "
                 }`}
             >
                 <Outlet />

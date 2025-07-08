@@ -5,7 +5,7 @@ const Sidebar = ({ isOpen }) => {
   return (
     <aside
       className={`fixed bg-white left-0 z-40 w-64 h-screen transition-transform -translate-x-full
-        ${ isOpen ? "md:translate-x-0" : "-translate-x-full" } `}
+        ${ isOpen ? "translate-x-0" : "-translate-x-full" } `}
       aria-label="Sidebar"
     >
       <div className="h-full px-2 py-4 overflow-y-auto bg-gray-70 dark:bg-gray-800">
