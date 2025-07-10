@@ -30,9 +30,6 @@ export default function Layout() {
                 <AlertComponent />
                 <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
                 <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-                {/* <main className={` min-h-screen  pt-20  w-[100%] px-1 ${ isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "}  my-4`} >
-                    <Outlet />
-                </main> */}
                 <main className={`min-h-screen pt-20 w-full px-1  ${
                     isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "
                 }`}

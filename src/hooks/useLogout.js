@@ -4,7 +4,7 @@ import usePopup from './usePopup';
 import { useLogout as useLogoutService } from '../services/LogService'; 
 
 const useLogout = () => {
-  const { setApiToken } = useAuth();
+  const { setApiToken, setUser } = useAuth();
   const navigate = useNavigate();
   const { mutateAsync: logout } = useLogoutService(); // Récupérer mutateAsync
   const { openPopup, setYesAction, setNoAction, setMessage } = usePopup();
@@ -18,6 +18,7 @@ const useLogout = () => {
       try {
         await logout(); // Attendre la réponse de l’API de déconnexion
         setApiToken(null); // Nettoyer le token dans l’état
+        setUser(null);
         localStorage.removeItem('apiToken'); // Supprimer le token du localStorage
         navigate('/'); // Rediriger vers la page d’accueil
       } catch (error) {

@@ -26,6 +26,7 @@ import RoleForm from './pages/admin/roles/RoleForm';
 import Setting from './pages/settings/Settings';
 import ShowQuote from './pages/quote/ShowQuote';
 import ShowOrder from './pages/order/ShowOrder';
+import ProtectLogin from "./layout/ProtectLogin";
 
 
 const queryClient = new QueryClient();
@@ -34,7 +35,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
         <Routes>
-            <Route path="/" element={<Login />}></Route>
+            <Route element={<ProtectLogin />}>
+              <Route path="/" element={<Login />} />
+            </Route>
             <Route path="/errorPage" element={<ErrorPage />}></Route>
             <Route element={<ResquireAuth />}>
                 <Route element={<Layout />} >
