@@ -8,6 +8,9 @@ import InputField from '../../components/ui/InpuField';
 import { useForm } from "react-hook-form";
 import CheckboxField from '../../components/ui/CheckboxField';
 import { useQuery, useQueryClient  } from "react-query";
+import ContactsTable from '../../components/ContactsTable';
+
+
 
 
 
@@ -18,6 +21,7 @@ const CustomerForm = () => {
     const [formTitle, setFormTitle] = useState('Nouveau Client')
     const [hiddenIce, setHiddenIce] = useState(true);
     const [buttonAction, setButtonAction] = useState('Ajouter');
+
     const navigate = useNavigate();
     const {setAlert} = useAlert();
     const location = useLocation();
@@ -34,6 +38,8 @@ const CustomerForm = () => {
 
 
 
+
+
     useEffect(() => {
         // Populate form fields if editing an existing customer
         if(location.state){
@@ -46,8 +52,8 @@ const CustomerForm = () => {
                 email : location.state?.email || '', 
                 phoneNumber : location.state?.phoneNumber || '', 
                 type : location.state?.type === 'B', 
-                iceNumber : location.state?.ice || ''
-        
+                iceNumber : location.state?.ice || '',
+                contacts: location.state.contacts ?? [],
             }
             setHiddenIce(customerData.type)
             reset(customerData);
@@ -63,17 +69,17 @@ const CustomerForm = () => {
     }
 
     const onSubmit = async (data) => {
-      
+        
         const customer = {
         name : data.name,
         adress : data.adress,
         email : data.email, 
         phoneNumber : data.phoneNumber, 
         type : data.type ? "B" : "I", 
-        ice : data.iceNumber,
+        ice : data?.iceNumber,
+        contacts : data?.contacts
 
         }
-        
                 
         if(location.state){
                 try{
@@ -219,6 +225,8 @@ const CustomerForm = () => {
                             }
                             </div>
                         </div>
+                        
+                        <ContactsTable control={control} />
                         <div className=" flex justify-end mt-4 gap-2 ">
                             <ResetButton  />
                             <SaveButton />
