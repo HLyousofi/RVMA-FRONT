@@ -10,6 +10,7 @@ import Badge from "../../components/ui/Badge";
 import {DataGrid,GridActionsCellItem,useGridApiRef} from '@mui/x-data-grid';
 import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import EditIcon from '@mui/icons-material/Edit';
 import dayjs from 'dayjs';
 
 
@@ -137,17 +138,28 @@ function Invoices() {
                 onClick={() => downloadInvoice(params.row)}
               />,
             ];
-            // Show delete button only for 'draft' status
             if (params.row.status === 'draft') {
               actions.push(
                 <GridActionsCellItem
-                  key="delete"
-                  icon={<DeleteIcon />}
-                  label="Supprimer"
-                  onClick={() => handleDeleteClick(params.row)}
+                  key="update"
+                  icon={<EditIcon />}
+                  label="Modifier"
+                  onClick={() => handleEditClick(params.row)}
                 />
               );
             }
+            // Show delete button only for 'draft' status
+            // if (params.row.status === 'draft') {
+            //   actions.push(
+            //     <GridActionsCellItem
+            //       key="delete"
+            //       icon={<DeleteIcon />}
+            //       label="Supprimer"
+            //       onClick={() => handleDeleteClick(params.row)}
+            //     />
+            //   );
+            // }
+           
         
             return actions;
           },
@@ -156,6 +168,10 @@ function Invoices() {
 
     const handleShowClick = (invoice) => {
       navigate(`/${endPoint}/${invoice.id}/${endPointShow}`);
+    }
+
+    const handleEditClick = (invoice) => {
+      navigate(`/${endPoint}/${invoice.id}/${endPointEdit}`);
     }
   
     const downloadInvoice = async ({id}) => {
