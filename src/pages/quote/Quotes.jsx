@@ -1,151 +1,216 @@
 import { useState } from "react";
-import api  from '../../services/axios-service';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
-import { Chip } from "@mui/material";
+import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import formatPrice from "../../utils/utility";
-import { useQuery, useQueryClient } from "react-query";
-
+import { useQueryClient } from "react-query";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useNavigate, Link } from "react-router-dom";
+import AddButton from "../../components/ui/AddButton";
+import useGetQuotes,{useDeleteQuote, downloadQuotePDF} from "../../services/QuoteService";
+import Badge from "../../components/ui/Badge";
+import { useNavigate } from "react-router-dom";
+import { calculateTTC } from "../../utils/utility";
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DeleteIcon from '@mui/icons-material/Delete';
+import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
     GridActionsCellItem,
     useGridApiRef
   } from '@mui/x-data-grid';
 
-
-
-
-
-
-
-
 const Quote = () => {
-    const [quotes, setQuotes] = useState();
-    const [vehicleId, setVehicleId] = useState();
-    const [enable, setEnable] = useState(false);
+    
     const {setAlert} = useAlert();
+    const navigate = useNavigate();
     const endPoint = 'quotes';
-    const endPointEdit ='quoteform';
+    const endPointEdit ='edit';
+    const endPointCreate = 'create';
+    const endPointShow = 'show'
     const queryClient = useQueryClient();
     const apiRef = useGridApiRef();
-    const [customerId, setCustomerId] = useState();
     const [page, setPage] = useState({page : 1, pageSize : 15});
+    const { data : workOrder, isLoading, isError } = useGetQuotes(page);
+    const {mutateAsync : deleteQuote} = useDeleteQuote();
+    const {openPopup, setYesAction, setNoAction, setMessage} = usePopup();
+
 
     const quotesColumns = [
-        { field: 'id',
-          headerName: 'ID', 
-          width: 90 
+        {
+          field: 'workorderNumber',
+          headerName: 'Nomber',
+          flex: 1,
+          width: 100,
+          sortable: true,
         },
         {
-          field: 'name',
-          headerName: 'Nature',
-          width: 150,
-          editable: true,
-        },
-        {
-          field: 'description',
-          headerName: 'Description',
-          sortable: false,
+          field: 'createdAt',
+          headerName: 'Date de creation',
+          sortable: true,
+          flex: 1,
           width: 200,
-    
+        },
+        {
+          field: 'customer',
+          headerName: 'Client',
+          flex: 1,
+          width: 150,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.customer?.label || "N/A";
+          }
         },
         {
           field: 'vehicle',
-          headerName: 'vehicule',
+          headerName: 'Vehicle',
           type: 'text',
-          width: 200,
-          editable: true,
-        },
-        {
-          field: 'plateNumber',
-          headerName: 'Matricule',
-          type: 'text',
+          flex: 1,
           width: 150,
-          editable: true,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.plateNumber || "N/A";
+          }
         },
         {
-          field: 'price',
-          headerName: 'Prix',
+          field: 'total',
+          headerName: 'Total',
           sortable: false,
           width: 150,
-          renderCell: params => formatPrice(params.row.price)
+          flex: 1,
+          align: 'right', // Alignement du contenu des cellules à droite
+          headerAlign: 'right', // Alignement de l’en-tête à droite
+          renderCell: params => formatPrice(calculateTTC(+params.row.total))
     
         },
         {
           field: 'status',
           headerName: 'Status',
           width: 150,
-          editable: true,
-          renderCell: params => <Chip label={status[params.row.status].faild} color={status[params.row.status].color} variant="outlined" />
-          
+          flex: 1,
+          align: 'center',
+          headerAlign: 'center',
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return <Badge type='quote' status={params.row.status} /> ;
+          }
+        },
+        {
+          field: 'expirationDate',
+          headerName: 'Date de d\'experation',
+          sortable: true,
+          flex: 1,
+          width: 200,
         },
         {
           field: 'actions',
           headerName: 'Actions',
           type: 'actions',
-          width: 100,
-          getActions: ({id}) => [
-            <GridActionsCellItem icon={<EditIcon />} label="Edit"  />,
-            ///*<GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />,
-          ],
+          flex: 1,
+          width: 130,
+          getActions: (params) => {
+            const actions = [
+              <GridActionsCellItem
+                key="show"
+                icon={<ContentPasteSearchIcon />}
+                label="Voir"
+                onClick={() => handlShowClick(params.row)}
+              />,
+              <GridActionsCellItem
+                key="pdf"
+                icon={<PictureAsPdfIcon />}
+                label="PDF"
+                 onClick={() => downloadQuote(params.row)}
+              />,
+            ];
+      
+            // Show edit button only for 'draft' status
+            if (params.row.status !== 'approved' ) {
+              actions.push(
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label="Modifier"
+                  onClick={() => handlEditClick(params.row)}
+                />
+              );
+            }
+      
+            // Show delete button only for 'draft' status
+            if (params.row.status === 'draft') {
+              actions.push(
+                <GridActionsCellItem
+                  key="delete"
+                  icon={<DeleteIcon />}
+                  label="Supprimer"
+                  onClick={() => handleDeleteClick(params.row)}
+                />
+              );
+            }
+      
+            return actions;
+          },
         },
+
+        // {
+        //   field: 'actions',
+        //   headerName: 'Actions',
+        //   type: 'actions',
+        //   width: 100,
+        //   getActions: (params) => [
+        //     <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)}  />,
+        //     <GridActionsCellItem icon={<ContentPasteSearchIcon />} label="show" onClick={() => handlShowClick(params.row)}  />,
+        //   ],
+        // },
       ];
-      const status = {
-        "E" : {
-            faild : "En attend",
-            color : "default"
-        },
-        "C" : {
-            faild : "En cours",
-            color : "error"
-        },
-        "T" : {
-            faild : "Cloturé",
-            color : "success"
-        },
-        "F" : {
-            faild : "Facturé",
-            color : "primary"
-        },
-        "P" : {
-            faild : "Facturé",
-            color : "primary"
-        },
-        "D" : {
-            faild : "Facturé",
-            color : "primary"
-        }
     
-    }  
-
-    const fetchQuotes  =  () => api.get(`/${endPoint}`).then((res) =>{ return res});
-
-    const result = useQuery({
-        queryKey: ['quotes', customerId],
-        queryFn: () => fetchQuotes(),
-        keepPreviousData : true,
-        //enabled: enable,
-    });
-    const { data, isLoading, isError } = result;
-
-    const handelFetchData = (id) => {
-        
-        setCustomerId(id);
-
+    const handlEditClick = (quote) => {
+      navigate(`/${endPoint}/${quote.id}/${endPointEdit}`);
     }
-    
 
-    
-    
-    const handlEditClick = (id) => {
-        //  navigate('/vehicles');
+    const handlShowClick = (quote) => {
+      navigate(`/${endPoint}/${quote.id}/${endPointShow}`);
     }
+
+    const downloadQuote = async ({id}) => {
+      try{
+        downloadQuotePDF(id);
+      }catch(error){
+        console.error(error.message);
+      }
+    };
+
+    const handleDeleteClick =  ({id}) => {
+      openPopup();
+      setNoAction(() => () => {});
+      setMessage('Êtes-vous sûr de bien vouloir supprimer ce Devis?')
+      setYesAction(() =>  () => {
+                              try {
+                                   deleteQuote({id},{
+                                      onSuccess : () => {
+                                          apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                          setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
+                                      }
+                                  })
+
+                              } catch(error){
+                                  console.log(error);
+
+                              }
+    })
+
   
-   
-   return (
+  };
+
+  
+    if(isLoading){
+      return <CircularIndeterminate />
+  }
+  else if(isError)  {
+      return <p>Error fetching data</p>;
+  }
+   // Render the main content with the DataGrid
+  else return (
             <section >
                 <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6 rounded-xl  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] ">
                     <div className="rounded-t mb-0 px-4 py-3 border-0">
@@ -154,12 +219,11 @@ const Quote = () => {
                             <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Devis</h3>
                             </div>
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
+                              <AddButton link={endPointCreate} icon={<AddCircleOutlineIcon />} />
                             </div>
                         </div>
                     </div>
                     {/* <SearchBar handelFetchData={handelFetchData} /> */}
-                    {customerId && 
                         <div className="block w-full overflow-x-auto">
                                 <DataGrid 
                                     columnVisibilityModel={{
@@ -167,7 +231,7 @@ const Quote = () => {
                                     }}
                                     paginationMode="server"
                                     columns={quotesColumns}
-                                    rows={data?.data?.data}
+                                    rows={workOrder?.data}
                                     initialState={{
                                         pagination: {
                                         paginationModel: {
@@ -175,20 +239,18 @@ const Quote = () => {
                                         },
                                         },
                                     }}
-                                    rowCount={data?.data?.meta?.total}
+                                    rowCount={workOrder?.meta?.total}
                                     pageSizeOptions={[15, 25, 50, 100]}  
                                     apiRef={apiRef}
                                     onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
                                     //onRowClick={(params) => {handlRowClick(params)}}
                                 />
                             </div>
-                        }
-
                 </div>
             </section>
-        
+        );
 
-    );
+  
 }
 
 export default Quote;

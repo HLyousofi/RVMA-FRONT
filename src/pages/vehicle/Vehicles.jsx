@@ -3,11 +3,12 @@ import api  from '../../services/axios-service';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useMutation} from "react-query";
 import CircularIndeterminate from '../../components/ui/CircularIndeterminate';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import useGetVehicles,{useDeleteVehicle} from "../../services/VehicleService";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import AddButton from "../../components/ui/AddButton";
 import usePopup from "../../hooks/usePopup";
 import {
     DataGrid,
@@ -26,27 +27,26 @@ function Vehicles() {
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const endPointEdit ='vehicleform';
     const apiRef = useGridApiRef();
-    const { data, isLoading, isError } = useGetVehicles(page);
+    const { data : vehicles, isLoading, isError } = useGetVehicles(page);
     const {mutateAsync : deleteVehicle, isError : deleteError} = useDeleteVehicle();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     // Define columns for the DataGrid
     const vehicleColumns = [
-        // { field: 'id',
-        //   headerName: 'ID', 
-        //   width: 90,
-        //   editable: false,
-        // },
         {
           field: 'brand',
           headerName: 'Marque',
-          width: 200,
-          editable: false
+          flex: 1,
+          editable: false,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.brand?.label || "N/A";
+          },
         },
         {
           field: 'model',
           headerName: 'Model',
           type: 'text',
-          width: 200,
+           flex: 1,
           editable: false,
         },
         {
@@ -54,42 +54,44 @@ function Vehicles() {
           headerName: 'Matricule',
           sortable: true,
           editable: false,
-          width: 200,
+           flex: 1,
     
         },
         // {
         //   field: 'chassisNumber',
         //   headerName: 'Numero de chassis',//affichage de numero de chassis
         //   sortable: false,
-        //   width: 200,
+        //    flex: 1,
     
         // },
         {
             field: 'fuelType',
             headerName: 'Carburant',
             sortable: true,
-            width: 200,
+             flex: 1,
             editable: false,
+            renderCell: (params) => {
+              // Access the nested `label` field
+              return params.row.fuelType?.label || "N/A";
+            },
           },
           {
             field: 'customerName',
             headerName: 'Client',
-            width: 200,
+             flex: 1,
             editable: true,
           },
           {
             field: 'actions',
             headerName: 'Actions',
             type: 'actions',
-            width: 100,
+            flex: 0.5,
             getActions: (params) => [
               <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)} />,
               <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handleDeleteClick(params.row)}  />,
             ],
           }
       ];
-
-
 
 
     // Handle the click event for editing a customer
@@ -102,13 +104,12 @@ function Vehicles() {
         return api.delete(`/${endPoint}/${id}`);
     });
 
-
     const handleDeleteClick =  ({id}) => {
             openPopup();
             setMessage('Êtes-vous sûr de bien vouloir supprimer cette Vehicule ?')
             setNoAction(() => () => {});
             setYesAction(() => () => { 
-                                         deleteVehicle(id, {
+                                         deleteVehicle({id}, {
                                             onSuccess:  () => {
                                                 setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'}); 
                                                 apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
@@ -129,13 +130,13 @@ function Vehicles() {
     if(isLoading){
         return <CircularIndeterminate />
     }
-    else if(isError)  {
+    else if(isError )  {
         return <p>Error fetching data</p>;
     }
      // Render the main content with the DataGrid
     else return (
         
-      
+     
 
             <section >
                     <div className="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-800 w-full mb-6  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] rounded-xl ">
@@ -145,7 +146,7 @@ function Vehicles() {
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Vehicules</h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                    <Link to={`/${endPoint}/${endPointEdit}`} ><AddCircleOutlineIcon color="success" /></Link>
+                                    <AddButton link={endPointEdit} icon={<AddCircleOutlineIcon />} />
                                 </div>
                             </div>
                         </div>
@@ -156,7 +157,7 @@ function Vehicles() {
                                   }}
                                 paginationMode="server"
                                 columns={vehicleColumns}
-                                rows={data?.data?.data}
+                                rows={vehicles?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
@@ -164,7 +165,7 @@ function Vehicles() {
                                       },
                                     },
                                 }}
-                                rowCount={data?.data?.meta?.total}
+                                rowCount={vehicles?.meta?.total}
                                 pageSizeOptions={[15, 25, 50, 100]}  
                                 apiRef={apiRef}
                                 onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}

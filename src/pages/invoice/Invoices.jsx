@@ -1,95 +1,188 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import EditIcon from '@mui/icons-material/Edit';
 import useAlert from "../../hooks/useAlert";
 import formatPrice from "../../utils/utility";
 import CircularIndeterminate from "../../components/ui/CircularIndeterminate";
-import useGetInvoices, { useDeleteInvoice } from "../../services/InvoiceService";
+import useGetInvoices, { useDeleteInvoice, downloadInvoicePDF } from "../../services/InvoiceService";
 import usePopup from "../../hooks/usePopup";
-
-import {
-    DataGrid,
-    GridActionsCellItem,
-    useGridApiRef
-  } from '@mui/x-data-grid';
-
-
+import Badge from "../../components/ui/Badge";
+import {DataGrid,GridActionsCellItem,useGridApiRef} from '@mui/x-data-grid';
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import EditIcon from '@mui/icons-material/Edit';
+import dayjs from 'dayjs';
 
 
 
 function Invoices() {
+    const endPoint = 'invoices';
+    const endPointEdit ='edit';
+    const endPointShow ='show';
     const navigate = useNavigate();
     const apiRef = useGridApiRef();
     const [page, setPage] = useState({page : 1, pageSize : 15});
     const {setAlert} = useAlert();
-    const { data , isLoading, isError } = useGetInvoices(page);
+    const { data : invoices, isLoading, isError } = useGetInvoices(page);
     const {mutateAsync : deleteInvoice} = useDeleteInvoice();
     const {openPopup, setMessage, setYesAction, setNoAction} = usePopup();
     const invoiceColumns = [
-        { field: 'id',
-          headerName: 'ID', 
-          width: 90 
+        {
+          field: 'invoiceNumber',
+          headerName: 'Facture N',
+          flex: 1,
+          width: 100,
+          sortable: true,
         },
         {
           field: 'customerName',
-          headerName: 'Name',
-          width: 200,
-          editable: true,
+          headerName: 'Client',
+          flex: 1,
+          width: 150,
+          sortable: true,
+          filterable: true,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.customer?.label || "N/A";
+          }
+        },
+        {
+          // field: 'vehicle',
+          headerName: 'Vehicule',
+          width: 130,
+          flex: 1,
+          sortable: true,
+          filterable: true,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.brand.label || "N/A";
+          }
+        },
+       
+        {
+          field: 'vehicle',
+          headerName: 'Matricule',
+          width: 150,
+          flex: 1,
+          sortable: true,
+          filterable: true,
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return params.row.vehicle?.plateNumber || "N/A";
+          }
         },
         {
           field: 'amount',
-          headerName: 'Montant',
-          width: 200,
-          editable: true,
+          headerName: 'Montant HT',
+          width: 150,
+          flex: 1,
+          sortable: true,
+          filterable: true,
           renderCell: params => formatPrice(params.row.amount)
         },
         {
           field: 'billedDate',
           headerName: 'Date de Facturation',
           type: 'date',
-          width: 250,
-          editable: true,
-          valueGetter: ({ value }) => value && new Date(value)
+          flex: 1,
+          width: 150,
+          sortable: true,
+          filterable: true,
+          valueFormatter: (params) => 
+            params ? dayjs(params).format('DD/MM/YYYY') : 'N/A',
         },
         {
           field: 'paidDate',
           headerName: 'Date de Paiement',
-          description: 'This column has a value getter and is not sortable.',
-          type : 'date',
-          sortable: false,
-          width: 160,
-          valueGetter: ({ value }) => value && new Date(value)
-    
+          width: 150,
+          flex: 1,
+          sortable: true,
+          filterable: true,
+          valueFormatter: (params) => {
+            return params ? dayjs(params).format('DD/MM/YYYY') : 'N/A';
+          }
+        },
+        
+        {
+          field: 'status',
+          headerName: 'Status',
+          width: 150,
+          sortable: true,
+          flex: 1,
+          filterable: true,
+          align: 'center',
+          headerAlign: 'center',
+          renderCell: (params) => {
+            // Access the nested `label` field
+            return <Badge type='invoice' status={params?.row?.status} /> ;
+          }
         },
         {
-            field: 'status',
-            headerName: 'Status',
-            description: 'This column has a value getter and is not sortable.',
-            sortable: false,
-            width: 160,
-      
+          field: 'actions',
+          headerName: 'Actions',
+          type: 'actions',
+          width: 130,
+          flex: 1,
+          getActions: (params) => {
+            const actions = [
+              <GridActionsCellItem
+                key="show"
+                icon={<ContentPasteSearchIcon />}
+                label="Voir"
+                onClick={() => handleShowClick(params.row)}
+              />,
+              <GridActionsCellItem
+                key="pdf"
+                icon={<PictureAsPdfIcon />}
+                label="PDF"
+                onClick={() => downloadInvoice(params.row)}
+              />,
+            ];
+            if (params.row.status === 'draft') {
+              actions.push(
+                <GridActionsCellItem
+                  key="update"
+                  icon={<EditIcon />}
+                  label="Modifier"
+                  onClick={() => handleEditClick(params.row)}
+                />
+              );
+            }
+            // Show delete button only for 'draft' status
+            // if (params.row.status === 'draft') {
+            //   actions.push(
+            //     <GridActionsCellItem
+            //       key="delete"
+            //       icon={<DeleteIcon />}
+            //       label="Supprimer"
+            //       onClick={() => handleDeleteClick(params.row)}
+            //     />
+            //   );
+            // }
+           
+        
+            return actions;
           },
-        {
-            field: 'actions',
-            headerName: 'Actions',
-            type: 'actions',
-            width: 100,
-            getActions: ({id}) => [
-              <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick} />,
-              <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handlDeleteClick({id})} />
-            ],
-          },
+        }
       ];
 
-
-
-
-    const handlEditClick = (id) => {
-      //  navigate('/vehicles');
+    const handleShowClick = (invoice) => {
+      navigate(`/${endPoint}/${invoice.id}/${endPointShow}`);
     }
 
-    const handlDeleteClick =  ({id}) =>{
+    const handleEditClick = (invoice) => {
+      navigate(`/${endPoint}/${invoice.id}/${endPointEdit}`);
+    }
+  
+    const downloadInvoice = async ({id}) => {
+      try{
+        downloadInvoicePDF(id);
+      }catch(error){
+        console.error(error.message);
+      }
+    };
+
+    const handleDeleteClick =  ({id}) =>{
         openPopup();
         setMessage('Êtes-vous sûr de bien vouloir supprimer cette Facture');
         setNoAction(() => () => {});
@@ -125,16 +218,13 @@ function Invoices() {
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1">
                                 <h3 className="font-semibold text-base text-blueGray-700 dark:text-white ">Factures</h3>
                                 </div>
-                                {/* <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                                <button className="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">See all</button>
-                                </div> */}
                             </div>
                         </div>
                         <div className="block w-full overflow-x-auto">
                             <DataGrid 
                                 paginationMode="server"
                                 columns={invoiceColumns}
-                                rows={data?.data?.data}
+                                rows={invoices?.data}
                                 initialState={{
                                     pagination: {
                                       paginationModel: {
@@ -144,7 +234,7 @@ function Invoices() {
                                   }}
                                   apiRef={apiRef}
                                   onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
-                                  rowCount={data?.data?.meta?.total}
+                                  rowCount={invoices?.meta?.total}
                                   pageSizeOptions={[15, 25, 50, 100]}  
                                   
                                />

@@ -1,6 +1,6 @@
 // Importing necessary modules and resources
 import accueilImage from '../../assets/images/accueil-photo.png';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import api  from '../../services/axios-service';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -9,24 +9,22 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useAlert from '../../hooks/useAlert';
 import { Button } from '@mui/material';
 import RelativeAlertComponent from '../../components/ui/RelativeAlertComponent';
 import { useForm } from "react-hook-form";
+import InputField from '../../components/ui/InpuField';
+import useLogin from '../../services/LogService';
 
 // Functional component definition for the login page
 function Login() {
-
-
-    const { register, 
-            handleSubmit,
-            setError, 
-            formState : { errors } } = useForm();
+    const { register, handleSubmit,setError,control, formState : { errors } } = useForm();
     // Custom hook for displaying alerts
     const {setAlert} = useAlert();
+
+    const {mutateAsync : login} = useLogin();
 
     // React router navigation hook
     const navigate = useNavigate();
@@ -44,30 +42,28 @@ function Login() {
     }
 
 
-    // const onSubmit = ( e, data ) => {
-    //     e.eventDefault();
-    //     console.log(data);
-
-    // }
-
     const onSubmit = async (data) => {
-            try {
-                const response = await api.post('/login', data );
-                if(response.data.success){
-                        setApiToken(response.data.accessToken); 
-                        navigate('/customers');
-                        setAlert({active : true, type : "success", message : 'Connexion réussie !'});
-                }else {
-                    setError("email", { message : response?.data?.error})
-                    setApiToken();
-                }
-            }catch(err) {
-                console.log(err)
-                if(err?.response?.status < 500){
-                    setError("email",{message : "Désolé, le service est actuellement indisponible pour maintenance. Revenez bientôt !"});
-                }
+
+        try{
+            await login( data,{
+                                                onSuccess : async (response) => {
+                                                    setApiToken(response.accessToken);
+                                                    navigate('/customers');
+                                                    setAlert({
+                                                                active  : true, 
+                                                                type    : "success", 
+                                                                message : 'Connexion réussie !'
+                                                            });
+                                                }
+
+            });
+            }catch(error){
+            setAlert({
+                        active : true, 
+                        type : "error", 
+                        message : error.response?.data?.message
+                    });
             }
-        // }
     }
 
 
@@ -90,20 +86,22 @@ function Login() {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             {/* <!-- Username Input --> */}
                             <div className="mb-4">
-                            <TextField id="outlined-basic" 
-                                       fullWidth 
-                                       label="Login" 
-                                       {...register("email",{
-                                        required : "email is required",
-                                        validate : (value) => {
-                                            if(!value.includes('@')){
-                                                return "email must inlcude @";
-                                            }
-                                            return true;
-                                        } 
-                                       })}
-                                       variant="outlined" />
+
+                            <InputField
+                             name="email"
+                             label="Email"
+                             type="text"
+                             control={control}
+                             rules={{
+                               required: 'Email is required',
+                               pattern: {
+                                 value: /^\S+@\S+\.\S+$/,
+                                 message: 'Enter a valid email',
+                               },
+                             }}
+                            />
                             </div>
+
                             {/* <!-- Password Input --> */}
                             <div className="mb-4">
                             <FormControl  fullWidth variant="outlined">

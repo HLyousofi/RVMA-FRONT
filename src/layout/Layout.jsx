@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Outlet } from 'react-router-dom';
@@ -11,11 +11,11 @@ import PopUp from '../components/Popup';
 export default function Layout() {
 
     const {theme} = useDark();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-   
-
-    
-
+    const toggleSidebar = () => {
+      setIsSidebarOpen(!isSidebarOpen);
+    };
 
     const darkTheme = useMemo(() =>  createTheme({
             palette: {
@@ -25,18 +25,26 @@ export default function Layout() {
     
     return(
         <ThemeProvider theme={darkTheme}>
-            <div className=' min-h-screen overflow-hidden bg-gray-100 dark:bg-gray-600'>
+            <div className=' min-h-screen  overflow-hidden bg-gray-100 dark:bg-gray-600'>
                 <PopUp />
                 <AlertComponent />
-                <Sidebar />
-                <Navbar />
-                <main className="w-full h-full xl:w-10/12 mb-12   xl:mb-0 px-4 sm:ml-64 ml-0 mt-24" >
-                    <Outlet />
-                </main>
+                <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+                <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+                <main className={`min-h-screen pt-20 w-full px-1  ${
+                    isSidebarOpen ? "md:ml-64 md:w-[calc(100%-16rem)]" : "md:ml-0 "
+                }`}
+            >
+                <Outlet />
+            </main>
             </div>
         </ThemeProvider>
     )
 }
+
+
+
+
+
 
 
 

@@ -1,48 +1,174 @@
+import { useState } from "react";
+import useGetUsers, {useDeleteUser} from "../../../services/UserService";
+import CircularIndeterminate from "../../../components/ui/CircularIndeterminate";
+import InputField from "../../../components/ui/InpuField"
+import { useForm } from "react-hook-form";
+import useDialog from "../../../hooks/useDialog";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import Dialog from "../../../components/Dialog";
+import UserForm from "./UserForm";
+import {DataGrid, GridActionsCellItem, useGridApiRef } from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import {AddButton} from "../../../components/ui/AddButton";
+import usePopup from "../../../hooks/usePopup";
+import useAlert from "../../../hooks/useAlert";
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+
 
 
 
  const Users = () => {
 
-    // const [page, setPage] = useState({page : 1, pageSize : 15});
-    // const { data, isLoading, isError } = useGetUsers(page);
+    const [page, setPage] = useState({page : 1, pageSize : 15});
+    const { data : users, isLoading, isError } = useGetUsers(page);
+    const { handleSubmit, control, reset } = useForm();
+    const { isOpen, openDialog, closeDialog } = useDialog();
+    const [user, setUser] = useState();
+    const apiRef = useGridApiRef();
+    const {mutateAsync : deleteUser} = useDeleteUser();
+    const {openPopup, setYesAction, setNoAction, setMessage} = usePopup();
+    const {setAlert} = useAlert();
 
 
 
-    
-    // if(isLoading){
-    //     return <CircularIndeterminate />
-    // }
-    // else if(isError)  {
-    //     return <p>Error fetching data</p>;
-    // }else 
+
+     // Handle the click event for editing a customer
+     const handlEditClick = (user) => {
+      setUser(user);
+      openDialog();
+    }
+    const closeDialogForm = () => {
+      setUser({});
+      closeDialog();
+    }
+    const userColumns = [
+      {
+        field: 'lastName',
+        headerName: 'Nom',
+        flex: 1,
+        editable: false,
+        sortable: true
+      },
+      {
+        field: 'firstName',
+        headerName: 'Prenom',
+        flex: 1.5,
+        editable: false,
+      },
+      {
+        field: 'email',
+        headerName: 'Email',
+        type: 'email',
+        flex: 1,
+        editable: false,
+      },
+      {
+        field: 'phoneNumber',
+        headerName: 'Telephone',
+        description: 'This column has a value getter and is not sortable.',
+        sortable: false,
+        flex: 1,
+  
+      },
+      {
+        field: 'createdAt',
+        headerName: 'Date de creation',
+        description: 'This column has a value getter and is not sortable.',
+        sortable: false,
+        flex: 1,
+  
+      },
+      {
+          field: 'actions',
+          headerName: 'Actions',
+          type: 'actions',
+          flex: 1,
+          getActions: (params) => [
+            <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={() => handlEditClick(params.row)} />,
+            <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={() => handleDeleteClick(params.row)} />
+          ],
+        },
+    ];
+
+    const handleDeleteClick =  ({id}) => {
+      openPopup();
+      setNoAction(() => () => {});
+      setMessage('Êtes-vous sûr de bien vouloir supprimer ce Client?')
+      setYesAction(() =>  () => {
+                              try {
+                                   deleteUser({id},{
+                                      onSuccess : () => {
+                                          apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+                                          setAlert({active : true, type : 'success', message : 'Élément supprimé avec succès !'});
+                                      }
+                                  })
+
+                              } catch(error){
+                                  console.log(error);
+
+                              }
+    })
+  };
+
+
+
+
+    if(isLoading){
+        return <CircularIndeterminate />
+    }
+    else if(isError)  {
+        return <p>Error fetching data</p>;
+    }else 
     return (
-        <div>Users page</div>
-//          <div className="relative flex flex-col  shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] min-w-0 break-words  dark:bg-gray-800 w-full mb-6  rounded-xl ">
-        
-//             <div class="flex space-x-4">
-//     <div class="flex-1 "><li className="me-2">
-//                             <a href="#" className="inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group">
-//                                 <svg className="w-4 h-4 me-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-//                                     <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
-//                                 </svg>Profile
-//                             </a>
-//                         </li></div>
-//     <div class="flex-1 "><li className="me-2">
-//                             <a href="#" className="inline-flex items-center justify-center p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 group" aria-current="page">
-//                                 <svg className="w-4 h-4 me-2 text-blue-600 dark:text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
-//                                     <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"/>
-//                                 </svg>Users
-//                             </a>
-//                         </li></div>
-//     <div class="flex-1 "><li className="me-2">
-//                             <a href="#" className="inline-flex items-center justify-center p-4  border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group">
-//                                 <svg className="w-4 h-4 me-2 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-//                                     <path d="M5 11.424V1a1 1 0 1 0-2 0v10.424a3.228 3.228 0 0 0 0 6.152V19a1 1 0 1 0 2 0v-1.424a3.228 3.228 0 0 0 0-6.152ZM19.25 14.5A3.243 3.243 0 0 0 17 11.424V1a1 1 0 0 0-2 0v10.424a3.227 3.227 0 0 0 0 6.152V19a1 1 0 1 0 2 0v-1.424a3.243 3.243 0 0 0 2.25-3.076Zm-6-9A3.243 3.243 0 0 0 11 2.424V1a1 1 0 0 0-2 0v1.424a3.228 3.228 0 0 0 0 6.152V19a1 1 0 1 0 2 0V8.576A3.243 3.243 0 0 0 13.25 5.5Z"/>
-//                                 </svg>Settings
-//                             </a>
-//                         </li></div>
-// </div>
-//         </div>
+      <>
+        <Dialog
+          isOpen={isOpen} 
+          onClose={closeDialogForm} 
+          width='max-w-[40rem]'
+        >
+        <UserForm  user={user} handleCloseDialog={closeDialog}/>
+        </Dialog>
+        <div className="relative flex flex-col shadow-[0px_14px_28px_-5px_rgba(0,0,0,0.21)] min-w-0 break-words dark:bg-gray-700 w-full mb-6 rounded-xl">
+        {/* Search Input */}
+          <div className="flex   justify-between h-10 mb-4 ">
+            <InputField name="" sx={{width : '30%'}} label="Recherche"   type="text" control={control} />
+            <AddButton  onClick={openDialog} icon={<AddCircleOutlineIcon />}/>
+          </div>
+     
+
+        {/* Table */}
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+          
+          <DataGrid 
+              paginationMode="server"
+              columns={userColumns}
+              rows={users?.data}
+              initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 15, page :0
+                    },
+                  },
+                }}
+                rowCount={users?.meta?.total}
+                pageSizeOptions={[15, 25, 50, 100]}  
+                apiRef={apiRef}
+                onPaginationModelChange={(params) => setPage({page : params.page +1,pageSize : params.pageSize})}
+                // onRowClick={(params) => {handlRowClick(params)}}
+            />
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-4 flex justify-between items-center px-4">
+          {/* <button
+            // disabled={page.page === 1}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Previous
+          </button> */}
+        </div>
+        </div>
+      </>
                 
         
     );

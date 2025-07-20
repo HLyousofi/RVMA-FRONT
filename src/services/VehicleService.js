@@ -13,38 +13,81 @@ const useGetVehicles = (page) => {
 
     return useQuery({
         queryKey: ['vehicles', page],
-        queryFn: async () =>{ return await api.get(`${endPointVehicles}?page=${page.page}&pageSize=${page.pageSize}`)},
+        queryFn: async () =>{ 
+            try{
+                const response = await api.get(`${endPointVehicles}?page=${page.page}&pageSize=${page.pageSize}`);
+                return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        },
         keepPreviousData : true,
     });
 
 }
 export default useGetVehicles;
 
+export const useGetVehcilesNames = () => {
+
+    return useQuery({
+        queryKey: ['vehiclesName'],
+        queryFn: async () => {
+            try{
+                const response = await api.get(`${endPointVehicles}?pageSize=all`);
+                return response.data;
+            }catch(error){
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+
+        },
+        keepPreviousData : true
+    });
+}
+
 
 export const usePostVehicle = () => {
-    
-
     return useMutation({
-        mutationFn : (vehicle) => { return   api.post(endPointVehicles, vehicle);}
+        mutationFn: async ({ vehicle }) => {
+            try {
+                const response = await api.post(endPointVehicles, vehicle);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
 
     });
-
 }
 
 export const useUpdateVehicle = () => {
-    
 
     return useMutation({
-        mutationFn : ({id, vehicle}) => {    api.patch(`${endPointVehicles}\\${id}`, vehicle).then((res) => {return res});}
-
+        mutationFn: async ({ id, vehicle }) => {
+            try {
+                const response = await api.patch(`${endPointVehicles}/${id}`, vehicle);
+                return response.data;
+            } catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+            }
+        }
     });
-
 }
-
 
 export const useDeleteVehicle = () => {
 
     return useMutation({
-        mutationFn : async   (id)  => { return  await api.delete(`${endPointVehicles}\\${id}`);
+        mutationFn : async   ({id})  => { 
+            try {
+                const response =  await api.delete(`${endPointVehicles}\\${id}`);
+                return response.data;
+            }catch (error) {
+                console.error("Erreur API :", error.response?.data || error);
+                throw error; // Relancer l'erreur pour qu'elle soit capturée dans `catch`
+
+            }
     }}) 
 }
